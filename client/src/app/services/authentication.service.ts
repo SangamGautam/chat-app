@@ -38,10 +38,15 @@ export class AuthenticationService {
     return this.http.post<any>(`${this.apiUrl}/register`, { username, password });
   }
 
-  logout() {
-    sessionStorage.removeItem('currentUser'); 
-    this.currentUserSubject.next(null);
-  }
+  logout(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/logout`, {}).pipe(
+        tap(() => {
+            sessionStorage.removeItem('currentUser'); 
+            this.currentUserSubject.next(null);
+        })
+    );
+}
+
 
   isSuperAdmin(): boolean {
     const user = this.currentUserValue;

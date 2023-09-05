@@ -48,6 +48,11 @@ router.post('/auth/login', (req, res) => {
     res.json(userWithoutPassword);
 });
 
+router.post('/auth/logout', (req, res) => {
+    req.session.destroy();
+    res.json({ message: 'Logged out successfully.' });
+});
+
 router.get('/groups', (req, res) => {
     res.json([]);
 });

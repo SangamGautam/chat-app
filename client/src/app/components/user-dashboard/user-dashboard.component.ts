@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthenticationService } from '../../services/authentication.service'; // Import AuthenticationService
+import { Router } from '@angular/router'; // Import Router
 
 @Component({
   selector: 'app-user-dashboard',
@@ -16,7 +18,10 @@ export class UserDashboardComponent implements OnInit {
   currentGroup: string | null = null;
   message: string = '';
 
-  constructor() { }
+  constructor(
+    private authService: AuthenticationService, // Inject AuthenticationService
+    private router: Router // Inject Router
+  ) { }
 
   ngOnInit(): void {
   }
@@ -28,5 +33,12 @@ export class UserDashboardComponent implements OnInit {
 
   sendMessage() {
     // Logic to send the message to the current group
+  }
+
+  // Add the logout method
+  logout() {
+    this.authService.logout().subscribe(() => {
+      this.router.navigate(['/login']); // Navigate to login page after logout
+    });
   }
 }

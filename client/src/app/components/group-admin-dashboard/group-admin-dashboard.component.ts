@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { GroupService } from '../../services/group.service';
 import { UserService } from '../../services/user.service';
+import { AuthenticationService } from '../../services/authentication.service'; // Import AuthenticationService
+import { Router } from '@angular/router'; // Import Router
 
 @Component({
   selector: 'app-group-admin-dashboard',
@@ -11,7 +13,12 @@ export class GroupAdminDashboardComponent implements OnInit {
   groupName: string = 'Sample Group'; // Replace with actual group name from backend
   groupUsers: any[] = []; // Users within the group
 
-  constructor(private groupService: GroupService, private userService: UserService) { }
+  constructor(
+    private groupService: GroupService, 
+    private userService: UserService,
+    private authService: AuthenticationService, // Inject AuthenticationService
+    private router: Router // Inject Router
+  ) { }
 
   ngOnInit(): void {
     this.loadGroupUsers();
@@ -30,5 +37,12 @@ export class GroupAdminDashboardComponent implements OnInit {
 
   removeUserFromGroup(user: any) {
     // Logic to remove user from the group
+  }
+
+  // Add the logout method
+  logout() {
+    this.authService.logout().subscribe(() => {
+      this.router.navigate(['/login']); // Navigate to login page after logout
+    });
   }
 }

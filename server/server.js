@@ -2,12 +2,21 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const fs = require('fs');
+const session = require('express-session'); // Import the express-session package
 const app = express();
 const routes = require('./routes');
 
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());
+
+// Use the session middleware
+app.use(session({
+    secret: '9876543210', // This should be a long random string in a real application
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Set to true if you're using HTTPS, false otherwise
+}));
 
 // API routes
 app.use('/api', routes);  // Prefix all routes with /api
