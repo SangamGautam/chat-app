@@ -1,1 +1,23 @@
-<p>register works!</p>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">Register</div>
+                <div class="card-body">
+                    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+                    <div *ngIf="registrationMessage" class="alert alert-success">{{ registrationMessage }}</div>
+                    <div class="form-group">
+                        <label>Username:</label>
+                        <input [(ngModel)]="registerUsername" type="text" class="form-control" placeholder="Enter username">
+                    </div>
+                    <div class="form-group">
+                        <label>Password:</label>
+                        <input [(ngModel)]="registerPassword" type="password" class="form-control" placeholder="Enter password">
+                    </div>
+                    <button (click)="register()" class="btn btn-primary">Register</button>
+                    <button (click)="goToLogin()" class="btn btn-link">Back to Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

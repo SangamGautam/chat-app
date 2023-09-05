@@ -12,6 +12,10 @@ import { SuperAdminComponent } from './components/super-admin/super-admin.compon
 import { GroupAdminComponent } from './components/group-admin/group-admin.component';
 import { FormsModule } from '@angular/forms';
 import { AuthenticationService } from './services/authentication.service';
+import { UserDashboardComponent } from './components/user-dashboard/user-dashboard.component';
+import { GroupAdminDashboardComponent } from './components/group-admin-dashboard/group-admin-dashboard.component';
+import { SuperAdminDashboardComponent } from './components/super-admin-dashboard/super-admin-dashboard.component';
+import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
@@ -22,10 +26,14 @@ import { AuthenticationService } from './services/authentication.service';
     DashboardComponent,
     ChatComponent,
     SuperAdminComponent,
-    GroupAdminComponent
+    GroupAdminComponent,
+    UserDashboardComponent,
+    GroupAdminDashboardComponent,
+    SuperAdminDashboardComponent
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     FormsModule,
     AppRoutingModule,
     NgbModule

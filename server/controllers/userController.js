@@ -1,7 +1,8 @@
-// server/controllers/userController.js
+const fs = require('fs');
+const path = require('path');
 
-var fs = require('fs');
-
-exports.updateUserProfile = function(req, res) {
-    // ... (your code for updating user profile)
+exports.getUserData = (req, res) => {
+    // ... your code to get user data
 };
+
+// ... other user-related functions

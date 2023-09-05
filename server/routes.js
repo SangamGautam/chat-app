@@ -10,39 +10,81 @@ try {
     console.log('Error reading users from JSON file', err);
 }
 
-// Save users to JSON file
 function saveUsers() {
     fs.writeFileSync('./data/users.json', JSON.stringify(users));
 }
 
-// Route to register a new user
-router.post('/register', (req, res) => {
-    const { username, password } = req.body;
+router.post('/auth/register', (req, res) => {
+    const { username, password, email } = req.body;
 
-    // Check if user already exists
     const existingUser = users.find(user => user.username === username);
     if (existingUser) {
-        return res.status(400).send('Username already exists.');
+        return res.status(400).json({ message: 'Username already exists.' });
     }
 
-    // Add new user to the users array
-    users.push({ username, password });
-    saveUsers(); // Save to JSON file
+    const newUser = {
+        username,
+        password, // Storing plain text password (not recommended for production)
+        email,
+        id: users.length + 1,
+        roles: ['User'],
+        groups: []
+    };
+    users.push(newUser);
+    saveUsers();
 
-    res.send('User registered successfully.');
+    res.json({ message: 'User registered successfully.' });
 });
 
-// Route to login a user
-router.post('/login', (req, res) => {
+router.post('/auth/login', (req, res) => {
     const { username, password } = req.body;
 
-    // Check if user exists and password matches
     const user = users.find(u => u.username === username && u.password === password);
     if (!user) {
-        return res.status(400).send('Invalid username or password.');
+        return res.status(400).json({ message: 'Invalid username or password.' });
     }
 
-    res.send('Logged in successfully.');
+    const { password: _, ...userWithoutPassword } = user;
+    res.json(userWithoutPassword);
+});
+
+router.get('/groups', (req, res) => {
+    res.json([]);
+});
+
+router.post('/groups', (req, res) => {
+    res.json({ message: 'Group created successfully.' });
+});
+
+router.put('/groups/:groupId', (req, res) => {
+    res.json({ message: 'Group updated successfully.' });
+});
+
+router.delete('/groups/:groupId', (req, res) => {
+    res.json({ message: 'Group deleted successfully.' });
+});
+
+router.get('/users', (req, res) => {
+    const usersWithoutPasswords = users.map(user => {
+        const { password: _, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+    });
+    res.json(usersWithoutPasswords);
+});
+
+router.put('/users/:userId/role', (req, res) => {
+    const userId = parseInt(req.params.userId);
+    const { role } = req.body;
+
+    const user = users.find(u => u.id === userId);
+    if (!user) {
+        return res.status(404).json({ message: 'User not found.' });
+    }
+
+    user.roles = [role];
+    saveUsers();
+
+    res.json({ message: 'User role updated successfully.' });
 });
 
 module.exports = router;

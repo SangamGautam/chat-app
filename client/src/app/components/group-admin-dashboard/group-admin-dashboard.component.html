@@ -1,0 +1,34 @@
+<div class="container mt-5">
+    <h2>Group Admin Dashboard</h2>
+
+    <!-- Group Details Section -->
+    <div class="group-details-section mt-4">
+        <h3>Group Details</h3>
+        <p><strong>Group Name:</strong> {{ groupName }}</p>
+        <!-- Add other group details as needed -->
+    </div>
+
+    <!-- Users Management Section -->
+    <div class="users-section mt-4">
+        <h3>Manage Users in Group</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let user of groupUsers">
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.roles[0] }}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" (click)="editUser(user)">Edit</button>
+                        <button class="btn btn-danger btn-sm" (click)="removeUserFromGroup(user)">Remove</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

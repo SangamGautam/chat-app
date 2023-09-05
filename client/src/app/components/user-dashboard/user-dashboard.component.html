@@ -1,0 +1,44 @@
+<div class="container mt-5">
+    <!-- User Profile Information -->
+    <div class="card mb-4">
+        <div class="card-header">
+            User Profile
+        </div>
+        <div class="card-body">
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>ID:</strong> {{ user.id }}</p>
+            <p><strong>Roles:</strong> {{ user.roles.join(', ') }}</p>
+        </div>
+    </div>
+
+    <!-- User's Groups -->
+    <div class="card mb-4">
+        <div class="card-header">
+            Your Groups
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item" *ngFor="let group of user.groups" (click)="openChat(group)">
+                {{ group }}
+            </li>
+        </ul>
+    </div>
+
+    <!-- Chat Interface -->
+    <div class="card" *ngIf="currentGroup">
+        <div class="card-header">
+            Chatting in {{ currentGroup }}
+        </div>
+        <div class="card-body chat-window">
+            <!-- Display messages here -->
+        </div>
+        <div class="card-footer">
+            <div class="input-group">
+                <input type="text" class="form-control" [(ngModel)]="message" placeholder="Type a message...">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" (click)="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

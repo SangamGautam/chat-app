@@ -9,9 +9,6 @@ const routes = require('./routes');
 app.use(bodyParser.json());
 app.use(cors());
 
-// Serve static files from the 'public' directory
-app.use(express.static('public'));
-
 // API routes
 app.use('/api', routes);  // Prefix all routes with /api
 
@@ -24,10 +21,10 @@ try {
     console.log('Error reading users from JSON file', err);
 }
 
-// Save users to JSON file
-function saveUsers() {
-    fs.writeFileSync('./data/users.json', JSON.stringify(users));
-}
+// Root route handler
+app.get('/', (req, res) => {
+    res.send('Server!');
+});
 
 const PORT = 3000;
 app.listen(PORT, () => {

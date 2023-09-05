@@ -1,0 +1,36 @@
+<div class="container mt-5">
+    <h2 class="mb-4">Super Admin Dashboard</h2>
+
+    <!-- Groups Section -->
+    <div class="groups-section mb-5">
+        <h3 class="mb-3">Groups</h3>
+        <button class="btn btn-primary mb-3" (click)="createGroup()">Create New Group</button>
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let group of groups">
+                {{ group.name }}
+                <div>
+                    <button class="btn btn-warning mr-2" (click)="editGroup(group)">Edit</button>
+                    <button class="btn btn-danger" (click)="deleteGroup(group)">Delete</button>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Users Section -->
+    <div class="users-section">
+        <h3 class="mb-3">Users</h3>
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let user of users">
+                {{ user.username }} - Role: 
+                <div class="d-flex align-items-center">
+                    <select class="form-control mr-2" [(ngModel)]="user.roles[0]">
+                        <option value="SuperAdmin">Super Admin</option>
+                        <option value="GroupAdmin">Group Admin</option>
+                        <option value="User">User</option>
+                    </select>
+                    <button class="btn btn-info" (click)="updateUserRole(user)">Update Role</button>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
