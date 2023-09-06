@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:3000/api';  // Replace with your API endpoint
+  private apiUrl = 'http://localhost:3000/api';
 
   constructor(private http: HttpClient) { }
 
@@ -20,5 +20,21 @@ export class UserService {
 
   getUsersByGroup(groupName: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/groups/${groupName}/users`);
+  }
+
+  // Update the createUser method to accept role
+  createUser(username: string, email: string, role: string, password: string): Observable<any> {
+    const userData = {
+        username: username,
+        email: email,
+        role: role,
+        password: password
+    };
+    return this.http.post<any>(`${this.apiUrl}/users`, userData);
+}
+
+
+  deleteUser(userId: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/users/${userId}`);
   }
 }

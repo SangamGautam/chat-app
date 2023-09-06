@@ -26,10 +26,17 @@ export class GroupAdminDashboardComponent implements OnInit {
 
   loadGroupUsers() {
     // Fetch users within the group from the backend
-    this.userService.getUsersByGroup(this.groupName).subscribe((data: any[]) => {
-      this.groupUsers = data;
-    });
-  }
+    this.userService.getUsersByGroup(this.groupName).subscribe(
+      (data: any[]) => {
+        this.groupUsers = data;
+      },
+      error => {
+        console.error('Error fetching group users:', error);
+        // Optionally display an error message to the user
+      }
+    );
+}
+
 
   editUser(user: any) {
     // Logic to edit user details

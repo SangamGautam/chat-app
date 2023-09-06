@@ -24,7 +24,7 @@ router.post('/auth/register', (req, res) => {
 
     const newUser = {
         username,
-        password, // Storing plain text password (not recommended for production)
+        password,
         email,
         id: users.length + 1,
         roles: ['User'],
@@ -90,6 +90,103 @@ router.put('/users/:userId/role', (req, res) => {
     saveUsers();
 
     res.json({ message: 'User role updated successfully.' });
+});
+
+// Fetch users within a specific group
+router.get('/groups/:groupName/users', (req, res) => {
+    const groupName = decodeURIComponent(req.params.groupName);
+    const groupUsers = users.filter(user => user.groups.includes(groupName));
+    res.json(groupUsers);
+});
+
+// Endpoint to Create a User
+router.post('/users', (req, res) => {
+    const { username, email, password, role } = req.body;
+
+    if (!role || !['User', 'GroupAdmin', 'SuperAdmin'].includes(role)) {
+        return res.status(400).json({ message: 'Invalid or missing user role.' });
+    }
+
+    const existingUser = users.find(user => user.username === username);
+    if (existingUser) {
+        return res.status(400).json({ message: 'Username already exists.' });
+    }
+
+    const newUser = {
+        username,
+        email,
+        password,
+        id: users.length + 1,
+        roles: [role],
+        groups: []
+    };
+    users.push(newUser);
+    saveUsers();
+
+    res.json({ message: `User created successfully with role ${role}.` });
+});
+
+
+
+// Endpoint to Delete a User
+router.delete('/users/:userId', (req, res) => {
+    const userId = parseInt(req.params.userId);
+
+    const user = users.find(u => u.id === userId);
+    if (!user) {
+        return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Prevent deletion of Super Admin
+    if (user.roles.includes('SuperAdmin')) {
+        return res.status(403).json({ message: 'Cannot delete Super Admin.' });
+    }
+
+    const userIndex = users.findIndex(u => u.id === userId);
+    users.splice(userIndex, 1);
+    saveUsers();
+
+    res.json({ message: 'User deleted successfully.' });
+});
+
+
+// Endpoint to Create a User by Super Admin
+router.post('/admin/create-user', (req, res) => {
+    const { username, email, role, password } = req.body; // Extract the password
+
+    const existingUser = users.find(user => user.username === username);
+    if (existingUser) {
+        return res.status(400).json({ message: 'Username already exists.' });
+    }
+
+    const newUser = {
+        username,
+        email,
+        password,  
+        id: users.length + 1,
+        roles: [role || 'User'], 
+        groups: []
+    };
+    users.push(newUser);
+    saveUsers();
+
+    res.json({ message: `User created successfully with role ${role || 'User'}.` });
+});
+
+
+// Endpoint to Delete a User by Super Admin
+router.delete('/admin/delete-user/:userId', (req, res) => {
+    const userId = parseInt(req.params.userId);
+
+    const userIndex = users.findIndex(u => u.id === userId);
+    if (userIndex === -1) {
+        return res.status(404).json({ message: 'User not found.' });
+    }
+
+    users.splice(userIndex, 1);
+    saveUsers();
+
+    res.json({ message: 'User deleted successfully by Super Admin.' });
 });
 
 module.exports = router;

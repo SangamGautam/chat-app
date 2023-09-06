@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { GroupService } from '../../services/group.service';
 import { UserService } from '../../services/user.service';
-import { AuthenticationService } from '../../services/authentication.service'; // Import AuthenticationService
-import { Router } from '@angular/router'; // Import Router
+import { AuthenticationService } from '../../services/authentication.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-super-admin-dashboard',
@@ -12,12 +12,20 @@ import { Router } from '@angular/router'; // Import Router
 export class SuperAdminDashboardComponent implements OnInit {
   groups: any[] = [];
   users: any[] = [];
+  newUser: { username: string, email: string, role: string, password: string } = { 
+    username: '', 
+    email: '', 
+    role: 'User', 
+    password: '' 
+};
+
+  newGroup: { name: string } = { name: '' };
 
   constructor(
     private groupService: GroupService, 
     private userService: UserService,
-    private authService: AuthenticationService, // Inject AuthenticationService
-    private router: Router // Inject Router
+    private authService: AuthenticationService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -42,8 +50,10 @@ export class SuperAdminDashboardComponent implements OnInit {
   }
 
   createGroup() {
-    const newGroup = { name: 'New Group' };
-    this.groups.push(newGroup);
+    if (this.newGroup.name.trim()) {
+      this.groups.push({ ...this.newGroup });
+      this.newGroup.name = ''; // Reset the form
+    }
   }
 
   editGroup(group: any) {
@@ -57,14 +67,33 @@ export class SuperAdminDashboardComponent implements OnInit {
     }
   }
 
+  createUser() {
+    this.userService.createUser(this.newUser.username, this.newUser.email, this.newUser.role, this.newUser.password)
+    .subscribe(response => {
+        this.loadUsers();
+        this.newUser = { username: '', email: '', role: 'User', password: '' }; // Reset the form
+    }, error => {
+        console.error('Error creating user:', error);
+    });
+}
+
+  deleteUser(userId: number) {
+    this.userService.deleteUser(userId.toString()).subscribe(() => {
+      this.loadUsers();
+    }, error => {
+      console.error('Error deleting user:', error);
+    });
+  }
+
   updateUserRole(user: any) {
+    // Here, you can add logic to update the user's role in the backend.
+    // For now, I'm just logging the updated user.
     console.log('Updated user:', user);
   }
 
-  // Add the logout method
   logout() {
     this.authService.logout().subscribe(() => {
-      this.router.navigate(['/login']); // Navigate to login page after logout
+      this.router.navigate(['/login']);
     }, error => {
       console.error('Error during logout:', error);
     });

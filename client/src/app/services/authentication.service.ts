@@ -28,6 +28,7 @@ export class AuthenticationService {
       tap(response => {
         if (response && response.id) { 
           sessionStorage.setItem('currentUser', JSON.stringify(response)); 
+          localStorage.setItem('loggedInUsername', response.username); // Store username in local storage
           this.currentUserSubject.next(response);
         }
       })
@@ -42,11 +43,11 @@ export class AuthenticationService {
     return this.http.post(`${this.apiUrl}/logout`, {}).pipe(
         tap(() => {
             sessionStorage.removeItem('currentUser'); 
+            localStorage.removeItem('loggedInUsername'); // Remove username from local storage
             this.currentUserSubject.next(null);
         })
     );
-}
-
+  }
 
   isSuperAdmin(): boolean {
     const user = this.currentUserValue;
