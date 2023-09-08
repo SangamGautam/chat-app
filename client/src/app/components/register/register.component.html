@@ -11,8 +11,20 @@
                         <input [(ngModel)]="registerUsername" type="text" class="form-control" placeholder="Enter username">
                     </div>
                     <div class="form-group">
+                        <label>Email:</label>
+                        <input [(ngModel)]="registerEmail" type="email" class="form-control" placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
                         <label>Password:</label>
                         <input [(ngModel)]="registerPassword" type="password" class="form-control" placeholder="Enter password">
+                    </div>
+                    <div class="form-group">
+                        <label>Role:</label>
+                        <select [(ngModel)]="registerRole" class="form-control">
+                            <option value="User">User</option>
+                            <option value="Admin">Admin</option>
+                            <!-- Add other roles as needed -->
+                        </select>
                     </div>
                     <button (click)="register()" class="btn btn-primary">Register</button>
                     <button (click)="goToLogin()" class="btn btn-link">Back to Login</button>

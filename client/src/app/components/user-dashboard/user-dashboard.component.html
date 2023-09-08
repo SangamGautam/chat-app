@@ -10,17 +10,25 @@
             <p><strong>Email:</strong> {{ user.email }}</p>
             <p><strong>ID:</strong> {{ user.id }}</p>
             <p><strong>Roles:</strong> {{ user.roles.join(', ') }}</p>
+            <button class="btn btn-danger" (click)="deleteSelf()">Delete My Account</button>
         </div>
     </div>
 
     <!-- User's Groups -->
     <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
             Your Groups
+            <div>
+                <select [(ngModel)]="selectedGroupToJoin" class="form-control-sm">
+                    <option *ngFor="let group of groups" [value]="group.name">{{ group.name }}</option>
+                </select>
+                <button class="btn btn-success btn-sm ml-2" (click)="requestToJoinGroup()">Request to Join</button>
+            </div>
         </div>
         <ul class="list-group list-group-flush">
-            <li class="list-group-item" *ngFor="let group of user.groups" (click)="openChat(group)">
-                {{ group }}
+            <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let group of user.groups">
+                <span (click)="openChat(group)">{{ group }}</span>
+                <button class="btn btn-sm btn-danger" (click)="leaveGroup()">Leave</button>
             </li>
         </ul>
     </div>
@@ -29,6 +37,13 @@
     <div class="card" *ngIf="currentGroup">
         <div class="card-header">
             Chatting in {{ currentGroup }}
+            <div class="float-right">
+                <select [(ngModel)]="selectedChannelToJoin" class="form-control-sm">
+                    <!-- You'll need to fetch the channels for the group -->
+                    <option *ngFor="let channel of currentGroupChannels" [value]="channel">{{ channel }}</option>
+                </select>
+                <button class="btn btn-sm btn-success ml-2" (click)="joinChannel()">Join Channel</button>
+            </div>
         </div>
         <div class="card-body chat-window">
             <!-- Display messages here -->

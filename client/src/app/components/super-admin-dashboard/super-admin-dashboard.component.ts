@@ -12,12 +12,13 @@ import { Router } from '@angular/router';
 export class SuperAdminDashboardComponent implements OnInit {
   groups: any[] = [];
   users: any[] = [];
+  userRequests: any[] = [];
   newUser: { username: string, email: string, role: string, password: string } = { 
     username: '', 
     email: '', 
     role: 'User', 
     password: '' 
-};
+  };
 
   newGroup: { name: string } = { name: '' };
 
@@ -31,6 +32,7 @@ export class SuperAdminDashboardComponent implements OnInit {
   ngOnInit(): void {
     this.loadGroups();
     this.loadUsers();
+    this.loadUserRequests();
   }
 
   loadGroups() {
@@ -51,19 +53,65 @@ export class SuperAdminDashboardComponent implements OnInit {
 
   createGroup() {
     if (this.newGroup.name.trim()) {
-      this.groups.push({ ...this.newGroup });
-      this.newGroup.name = ''; // Reset the form
+      this.groupService.createGroup(this.newGroup.name).subscribe(() => {
+        this.loadGroups();
+        this.newGroup.name = ''; // Reset the form
+      }, error => {
+        console.error('Error creating group:', error);
+      });
     }
   }
 
   editGroup(group: any) {
-    group.name = 'Edited Group';
+    const newName = prompt('Enter the new name for the group:', group.name);
+    if (newName && newName !== group.name) {
+      this.groupService.updateGroup(group.name, { name: newName }).subscribe(() => {
+        this.loadGroups();
+      }, error => {
+        console.error('Error editing group:', error);
+      });
+    }
   }
 
   deleteGroup(group: any) {
-    const index = this.groups.indexOf(group);
+    this.groupService.deleteGroup(group.name).subscribe(() => {
+      this.loadGroups();
+    }, error => {
+      console.error('Error deleting group:', error);
+    });
+  }
+
+  createChannel(groupName: string, channelName: string) {
+    this.groupService.createChannel(groupName, channelName).subscribe(() => {
+      this.loadGroups();
+    }, error => {
+      console.error('Error creating channel:', error);
+    });
+  }
+
+  loadUserRequests() {
+    this.userService.getUserRequests().subscribe(data => {
+        this.userRequests = data;
+    }, error => {
+        console.error('Error fetching user requests:', error);
+    });
+  }
+
+  approveUserRequest(request: any) {
+    this.groupService.approveUserRequest(request.userId, request.groupName).subscribe(() => {
+        const index = this.userRequests.indexOf(request);
+        if (index > -1) {
+            this.userRequests.splice(index, 1);
+        }
+    }, error => {
+        console.error('Error approving user request:', error);
+    });
+  }
+
+  denyUserRequest(request: any) {
+    const index = this.userRequests.indexOf(request);
     if (index > -1) {
-      this.groups.splice(index, 1);
+        this.userRequests.splice(index, 1);
     }
   }
 
@@ -75,7 +123,7 @@ export class SuperAdminDashboardComponent implements OnInit {
     }, error => {
         console.error('Error creating user:', error);
     });
-}
+  }
 
   deleteUser(userId: number) {
     this.userService.deleteUser(userId.toString()).subscribe(() => {
@@ -86,8 +134,6 @@ export class SuperAdminDashboardComponent implements OnInit {
   }
 
   updateUserRole(user: any) {
-    // Here, you can add logic to update the user's role in the backend.
-    // For now, I'm just logging the updated user.
     console.log('Updated user:', user);
   }
 

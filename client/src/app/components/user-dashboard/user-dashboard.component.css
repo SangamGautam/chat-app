@@ -1,0 +1,77 @@
+/* General Styles */
+.container {
+    font-family: 'Arial', sans-serif;
+}
+
+.card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+.card-header {
+    background-color: #007bff;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.btn-warning {
+    color: #333;
+}
+
+/* User Profile Styles */
+.card-body p {
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+.card-body p strong {
+    color: #007bff;
+}
+
+/* User's Groups Styles */
+.list-group-item {
+    transition: background-color 0.3s;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+.list-group-item span {
+    cursor: pointer;
+    color: #007bff;
+    transition: color 0.3s;
+}
+
+.list-group-item span:hover {
+    text-decoration: underline;
+}
+
+/* Chat Interface Styles */
+.chat-window {
+    height: 400px;
+    overflow-y: auto;
+    border-top: 1px solid #e9ecef;
+    border-bottom: 1px solid #e9ecef;
+    padding: 15px;
+}
+
+.card-footer {
+    padding: 10px;
+}
+
+.input-group {
+    transition: box-shadow 0.3s;
+}
+
+.input-group:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.input-group input {
+    border-right: none;
+}
+
+.input-group-append .btn {
+    border-radius: 0;
+}

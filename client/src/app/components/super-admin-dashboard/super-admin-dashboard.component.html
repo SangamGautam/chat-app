@@ -17,7 +17,7 @@
             <div class="mb-3">
                 <input type="text" class="form-control mb-2" placeholder="Username" [(ngModel)]="newUser.username">
                 <input type="email" class="form-control mb-2" placeholder="Email" [(ngModel)]="newUser.email">
-                <input type="password" class="form-control mb-2" placeholder="Password" [(ngModel)]="newUser.password"> <!-- Added this line for password -->
+                <input type="password" class="form-control mb-2" placeholder="Password" [(ngModel)]="newUser.password">
                 
                 <!-- Role Selection Dropdown -->
                 <select class="form-control mb-2" [(ngModel)]="newUser.role">
@@ -67,6 +67,22 @@
                     {{ group.name }}
                     <button class="btn btn-primary btn-sm float-right ml-2" (click)="editGroup(group)">Edit</button>
                     <button class="btn btn-danger btn-sm float-right" (click)="deleteGroup(group)">Delete</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- User Requests Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            User Requests to Join Groups
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                <li class="list-group-item" *ngFor="let request of userRequests">
+                    {{ request.username }} wants to join {{ request.groupName }}
+                    <button class="btn btn-success btn-sm float-right ml-2" (click)="approveUserRequest(request)">Approve</button>
+                    <button class="btn btn-danger btn-sm float-right" (click)="denyUserRequest(request)">Deny</button>
                 </li>
             </ul>
         </div>

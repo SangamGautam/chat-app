@@ -10,19 +10,28 @@ import { Router } from '@angular/router';
 export class RegisterComponent {
   registerUsername!: string;
   registerPassword!: string;
+  registerEmail!: string; // Added email property
+  registerRole: string = 'User'; // Added role property with a default value of 'User'
   errorMessage!: string;
   registrationMessage?: string;
 
   constructor(private authService: AuthenticationService, private router: Router) { }
 
   register() {
-    const isRegistered = this.authService.register(this.registerUsername, this.registerPassword);
-    if (isRegistered) {
-      this.registrationMessage = 'Registration successful! Please login.';
-      this.errorMessage = '';
-    } else {
-      this.errorMessage = 'Registration failed. Username might already exist.';
-    }
+    this.authService.register(
+      this.registerUsername, 
+      this.registerPassword, 
+      this.registerEmail, 
+      this.registerRole
+    ).subscribe(
+      response => {
+        this.registrationMessage = 'Registration successful! Please login.';
+        this.errorMessage = '';
+      },
+      error => {
+        this.errorMessage = 'Registration failed. ' + (error.error.message || 'Username might already exist.');
+      }
+    );
   }
 
   goToLogin() {

@@ -22,7 +22,6 @@ export class UserService {
     return this.http.get<any[]>(`${this.apiUrl}/groups/${groupName}/users`);
   }
 
-  // Update the createUser method to accept role
   createUser(username: string, email: string, role: string, password: string): Observable<any> {
     const userData = {
         username: username,
@@ -31,10 +30,31 @@ export class UserService {
         password: password
     };
     return this.http.post<any>(`${this.apiUrl}/users`, userData);
-}
-
+  }
 
   deleteUser(userId: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/users/${userId}`);
+  }
+
+  // New methods for user management by Group Admin
+  editUser(userId: string, userData: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/users/${userId}`, userData);
+  }
+
+  reportUser(userId: string, reportData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/users/${userId}/report`, reportData);
+  }
+
+  banUserFromGroup(groupName: string, userId: string): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/groups/${groupName}/users/${userId}/ban`, {});
+  }
+
+  // Methods for Super Admin to manage user requests
+  getUserRequests(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/user-requests`);
+  }
+
+  approveUserRequest(userId: string, groupName: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/approve-request`, { userId, groupName });
   }
 }

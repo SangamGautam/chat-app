@@ -3,16 +3,53 @@ const router = express.Router();
 const fs = require('fs');
 
 let users = [];
-try {
-    const data = fs.readFileSync('./data/users.json', 'utf8');
-    users = JSON.parse(data);
-} catch (err) {
-    console.log('Error reading users from JSON file', err);
+let groups = [];
+
+// Load users from file
+function loadUsers() {
+    try {
+        const data = fs.readFileSync('./data/users.json', 'utf8');
+        users = JSON.parse(data);
+    } catch (err) {
+        console.log('Error reading users from JSON file', err);
+    }
 }
 
-function saveUsers() {
-    fs.writeFileSync('./data/users.json', JSON.stringify(users));
+// Load groups from file
+function loadGroups() {
+    try {
+        const groupData = fs.readFileSync('./data/groups.json', 'utf8');
+        groups = JSON.parse(groupData);
+        groups.forEach(group => {
+            if (!group.channels) {
+                group.channels = [];
+            }
+        });
+    } catch (err) {
+        console.log('Error reading groups from JSON file', err);
+    }
 }
+
+
+function saveUsers() {
+    try {
+        fs.writeFileSync('./data/users.json', JSON.stringify(users));
+    } catch (err) {
+        console.error('Error writing users to JSON file', err);
+    }
+}
+
+function saveGroups() {
+    try {
+        fs.writeFileSync('./data/groups.json', JSON.stringify(groups));
+    } catch (err) {
+        console.error('Error writing groups to JSON file', err);
+    }
+}
+
+
+loadUsers(); // Initial load
+loadGroups(); // Initial load
 
 router.post('/auth/register', (req, res) => {
     const { username, password, email } = req.body;
@@ -54,18 +91,65 @@ router.post('/auth/logout', (req, res) => {
 });
 
 router.get('/groups', (req, res) => {
-    res.json([]);
+    loadGroups();
+    res.json(groups);
 });
+
 
 router.post('/groups', (req, res) => {
-    res.json({ message: 'Group created successfully.' });
+    try {
+        console.log("Request body:", req.body);  // Log the request body
+        const { groupName } = req.body;
+        console.log("Extracted groupName:", groupName);  // Log the extracted groupName
+
+        // Check if the group already exists
+        const existingGroup = groups.find(group => group.name === groupName);
+        if (existingGroup) {
+            return res.status(400).json({ message: 'Group already exists.' });
+        }
+
+        const newGroup = {
+            name: groupName,
+            channels: []
+        };
+        groups.push(newGroup);
+        console.log("Updated groups array:", groups);  // Log the updated groups array
+
+        saveGroups();
+        res.json({ message: 'Group created successfully.' });
+    } catch (error) {
+        console.error('Error creating group:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
 });
 
-router.put('/groups/:groupId', (req, res) => {
+// Update a group by groupName
+router.put('/groups/:groupName', (req, res) => {
+    const groupName = decodeURIComponent(req.params.groupName);
+    const groupToUpdate = groups.find(group => group.name === groupName);
+
+    if (!groupToUpdate) {
+        return res.status(404).json({ message: 'Group not found.' });
+    }
+
+    // Update the group with the new data
+    Object.assign(groupToUpdate, req.body);
+    saveGroups();
     res.json({ message: 'Group updated successfully.' });
 });
 
-router.delete('/groups/:groupId', (req, res) => {
+
+// Delete a group by groupId
+router.delete('/groups/:groupName', (req, res) => {
+    const groupName = req.params.groupName;
+    const groupIndex = groups.findIndex(group => group.name === groupName);
+
+    if (groupIndex === -1) {
+        return res.status(404).json({ message: 'Group not found.' });
+    }
+
+    groups.splice(groupIndex, 1);
+    saveGroups();
     res.json({ message: 'Group deleted successfully.' });
 });
 
@@ -75,6 +159,34 @@ router.get('/users', (req, res) => {
         return userWithoutPassword;
     });
     res.json(usersWithoutPasswords);
+});
+
+router.get('/groups/:groupName/channels', (req, res) => {
+    loadGroups();
+    const groupName = decodeURIComponent(req.params.groupName);
+    const group = groups.find(g => g.name === groupName);
+    if (!group) {
+        return res.status(404).json({ message: 'Group not found.' });
+    }
+    res.json(group.channels);
+});
+
+// Create a channel within a specific group
+
+router.post('/groups/:groupName/channels', (req, res) => {
+    loadGroups();
+    const groupName = decodeURIComponent(req.params.groupName);
+    const { channelName } = req.body;
+    const group = groups.find(g => g.name === groupName);
+    if (!group) {
+        return res.status(404).json({ message: 'Group not found.' });
+    }
+    if (group.channels.includes(channelName)) {
+        return res.status(400).json({ message: 'Channel already exists in this group.' });
+    }
+    group.channels.push(channelName);
+    saveGroups();
+    res.json({ message: `Channel ${channelName} created successfully for group ${groupName}.` });
 });
 
 router.put('/users/:userId/role', (req, res) => {
@@ -187,6 +299,39 @@ router.delete('/admin/delete-user/:userId', (req, res) => {
     saveUsers();
 
     res.json({ message: 'User deleted successfully by Super Admin.' });
+});
+
+// New endpoint to fetch user requests
+router.get('/user-requests', (req, res) => {
+    const usersWithoutPasswords = users.map(user => {
+        const { password: _, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+    });
+    res.json(usersWithoutPasswords);
+});
+
+// Endpoint to request to join a group
+router.post('/groups/:groupName/requestToJoin', (req, res) => {
+    const groupName = decodeURIComponent(req.params.groupName);
+    const group = groups.find(g => g.name === groupName);
+    
+    if (!group) {
+        return res.status(404).json({ message: 'Group not found.' });
+    }
+
+    // TODO: Logic to handle the request to join the group
+    // This can involve adding the user to a waiting list, sending a notification to group admins, etc.
+    // For now, we'll just simulate adding the user to the group's waiting list.
+    if (!group.waitingList) {
+        group.waitingList = [];
+    }
+    const userId = req.body.userId; // Assuming the user's ID is sent in the request body
+    if (userId && !group.waitingList.includes(userId)) {
+        group.waitingList.push(userId);
+        saveGroups(); // Save the updated groups data
+    }
+
+    res.json({ message: `Request to join group ${groupName} received.` });
 });
 
 module.exports = router;

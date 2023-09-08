@@ -28,22 +28,20 @@ export class AuthenticationService {
       tap(response => {
         if (response && response.id) { 
           sessionStorage.setItem('currentUser', JSON.stringify(response)); 
-          localStorage.setItem('loggedInUsername', response.username); // Store username in local storage
           this.currentUserSubject.next(response);
         }
       })
     );
   }
 
-  register(username: string, password: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/register`, { username, password });
+  register(username: string, password: string, email: string, role: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/register`, { username, password, email, role });
   }
 
   logout(): Observable<any> {
     return this.http.post(`${this.apiUrl}/logout`, {}).pipe(
         tap(() => {
             sessionStorage.removeItem('currentUser'); 
-            localStorage.removeItem('loggedInUsername'); // Remove username from local storage
             this.currentUserSubject.next(null);
         })
     );

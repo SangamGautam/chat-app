@@ -1,18 +1,48 @@
 <div class="container mt-5">
+
+    <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-center">
         <h2>Group Admin Dashboard</h2>
         <button class="btn btn-warning" (click)="logout()">Logout</button>
     </div>
 
-    <!-- Group Details Section -->
-    <div class="group-details-section mt-4">
-        <h3>Group Details</h3>
-        <p><strong>Group Name:</strong> {{ groupName }}</p>
-        <!-- Add other group details as needed -->
-    </div>
+    <!-- Group Creation Section -->
+    <section class="group-creation-section mt-4">
+        <h3>Create Group</h3>
+        <input type="text" [(ngModel)]="newGroupName" placeholder="Enter Group Name">
+        <button class="btn btn-success" (click)="createGroup()">Create Group</button>
+    </section>
 
-    <!-- Users Management Section -->
-    <div class="users-section mt-4">
+ <!-- All Groups Display Section -->
+<section class="all-groups-section mt-4">
+    <h3>All Groups</h3>
+    <ol class="row list-unstyled">
+        <li class="col-md-4" *ngFor="let group of allGroups">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h1 class="card-title">
+                        <button class="btn btn-link p-0 fs-lg" (click)="selectGroup(group)">{{ group.name }}</button>
+                    </h1>
+                    <div class="mt-2">
+                        <button class="btn btn-secondary fs-sm" (click)="editGroupPrompt(group)">Edit</button>
+                        <button class="btn btn-danger ml-2 fs-sm" (click)="deleteGroupPrompt(group)">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ol>
+</section>
+
+    <!-- Channel Creation Section -->
+<section class="channel-creation-section mt-4" *ngIf="selectedGroup">
+    <h3>Create Channel in {{ selectedGroup.name }}</h3>
+    <input type="text" [(ngModel)]="newChannelName" placeholder="Enter Channel Name">
+    <button class="btn btn-success" (click)="createChannel()">Create Channel</button>
+</section>
+
+
+    <!-- User Management Section -->
+    <section class="users-section mt-4">
         <h3>Manage Users in Group</h3>
         <table class="table table-bordered">
             <thead>
@@ -29,9 +59,12 @@
                     <td>
                         <button class="btn btn-primary btn-sm" (click)="editUser(user)">Edit</button>
                         <button class="btn btn-danger btn-sm" (click)="removeUserFromGroup(user)">Remove</button>
+                        <button class="btn btn-warning btn-sm" (click)="banUserFromChannel(user)">Ban from Channel</button>
+                        <button class="btn btn-info btn-sm" (click)="reportToSuperAdmin(user)">Report</button>
                     </td>
                 </tr>
             </tbody>
         </table>
-    </div>
+    </section>
+
 </div>
