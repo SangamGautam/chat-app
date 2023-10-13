@@ -1,18 +1,29 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const session = require('express-session');
+import express from 'express';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import session from 'express-session';
+import http from 'http';
+import socketIo from 'socket.io';
+import routes from './routes';
+import socketHandler from './socketHandler';  // Import the socketHandler module
+
 const app = express();
-const routes = require('./routes');
+const server = http.createServer(app);
+const io = socketIo(server, {
+    cors: {
+        origin: "http://localhost:4200",
+        methods: ["GET", "POST"]
+    }
+});
 
 // Middleware
 app.use(cors({
-    origin: 'http://localhost:4200', // Adjust this to your frontend's origin
+    origin: 'http://localhost:4200',
     credentials: true
 }));
+
 app.use(bodyParser.json());
 
-// Use the session middleware
 app.use(session({
     secret: '9876543210',
     resave: false,
@@ -34,7 +45,11 @@ app.use((err, req, res, next) => {
     res.status(500).send('Something broke!');
 });
 
+socketHandler(io);  // Initialize socket handler
+
 const PORT = 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+export { app, io };  // Export both app and io

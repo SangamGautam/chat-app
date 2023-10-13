@@ -1,56 +1,37 @@
 const express = require('express');
 const router = express.Router();
+const { io } = require('./server');  // Import io from server.js
 const fs = require('fs');
+const { io } = require('./server');  // Import io from server.js
 
-let users = [];
-let groups = [];
+// Define the paths to the JSON data files
+const usersFilePath = path.join(__dirname, 'data', 'users.json');
+const groupsFilePath = path.join(__dirname, 'data', 'groups.json');
 
-// Load users from file
-function loadUsers() {
+// Utility functions to load and save data
+const loadData = (filePath) => {
     try {
-        const data = fs.readFileSync('./data/users.json', 'utf8');
-        users = JSON.parse(data);
+        const data = fs.readFileSync(filePath, 'utf8');
+        return JSON.parse(data);
     } catch (err) {
-        console.log('Error reading users from JSON file', err);
+        console.error(`Error reading data from ${filePath}:`, err);
+        return [];
     }
-}
+};
 
-// Load groups from file
-function loadGroups() {
+const saveData = (filePath, data) => {
     try {
-        const groupData = fs.readFileSync('./data/groups.json', 'utf8');
-        groups = JSON.parse(groupData);
-        groups.forEach(group => {
-            if (!group.channels) {
-                group.channels = [];
-            }
-        });
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
     } catch (err) {
-        console.log('Error reading groups from JSON file', err);
+        console.error(`Error writing data to ${filePath}:`, err);
     }
-}
+};
 
+// Load initial data
+let users = loadData(usersFilePath);
+let groups = loadData(groupsFilePath);
 
-function saveUsers() {
-    try {
-        fs.writeFileSync('./data/users.json', JSON.stringify(users));
-    } catch (err) {
-        console.error('Error writing users to JSON file', err);
-    }
-}
-
-function saveGroups() {
-    try {
-        fs.writeFileSync('./data/groups.json', JSON.stringify(groups));
-    } catch (err) {
-        console.error('Error writing groups to JSON file', err);
-    }
-}
-
-
-loadUsers(); // Initial load
-loadGroups(); // Initial load
-
+// Authentication Routes
 router.post('/auth/register', (req, res) => {
     const { username, password, email } = req.body;
 
@@ -332,6 +313,12 @@ router.post('/groups/:groupName/requestToJoin', (req, res) => {
     }
 
     res.json({ message: `Request to join group ${groupName} received.` });
+});
+
+// Save data before shutting down the server
+process.on('exit', () => {
+    saveData(usersFilePath, users);
+    saveData(groupsFilePath, groups);
 });
 
 module.exports = router;
