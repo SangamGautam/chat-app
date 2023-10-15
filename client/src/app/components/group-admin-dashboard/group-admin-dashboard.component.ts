@@ -127,7 +127,7 @@ export class GroupAdminDashboardComponent implements OnInit {
 
   editUser(user: any) {
     const userData = { username: user.username, email: user.email };
-    this.userService.editUser(user.id, userData).subscribe(
+    this.userService.editUser(user._id, userData).subscribe(
       () => {
         console.log('User edited successfully');
         this.loadGroupUsers();
@@ -145,7 +145,7 @@ export class GroupAdminDashboardComponent implements OnInit {
  } 
 
   removeUserFromGroup(user: any) {
-    this.groupService.removeUser(this.selectedGroup.name, user.id).subscribe(
+    this.groupService.removeUser(this.selectedGroup.name, user._id).subscribe(
       () => {
         console.log('User removed from group successfully');
         this.loadGroupUsers();
@@ -155,7 +155,7 @@ export class GroupAdminDashboardComponent implements OnInit {
   }
 
   banUserFromChannel(user: any) {
-    this.groupService.banUserFromChannel(this.selectedGroup.name, this.newChannelName, user.id).subscribe(
+    this.groupService.banUserFromChannel(this.selectedGroup.name, this.newChannelName, user._id).subscribe(
       () => console.log('User banned from channel successfully'),
       error => console.error('Error banning user from channel:', error)
     );
@@ -163,7 +163,7 @@ export class GroupAdminDashboardComponent implements OnInit {
 
   reportToSuperAdmin(user: any) {
     const reportData = { reason: 'Inappropriate behavior' };
-    this.userService.reportUser(user.id, reportData).subscribe(
+    this.userService.reportUser(user._id, reportData).subscribe(
       () => console.log('User reported to super admin successfully'),
       error => console.error('Error reporting user to super admin:', error)
     );

@@ -1,92 +1,44 @@
 const express = require('express');
+const { User, Group } = require('./models'); // Import your MongoDB models
 const router = express.Router();
-const fs = require('fs');
 
-let users = [];
-let groups = [];
-
-// Load users from file
-function loadUsers() {
+// Register a new user
+router.post('/auth/register', async (req, res) => {
     try {
-        const data = fs.readFileSync('./data/users.json', 'utf8');
-        users = JSON.parse(data);
-    } catch (err) {
-        console.log('Error reading users from JSON file', err);
-    }
-}
-
-// Load groups from file
-function loadGroups() {
-    try {
-        const groupData = fs.readFileSync('./data/groups.json', 'utf8');
-        groups = JSON.parse(groupData);
-        groups.forEach(group => {
-            if (!group.channels) {
-                group.channels = [];
-            }
+        const { username, password, email } = req.body;
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Username already exists.' });
+        }
+        const newUser = new User({
+            username,
+            password, // Hash this password before saving in production
+            email,
+            roles: ['User'],
+            groups: []
         });
-    } catch (err) {
-        console.log('Error reading groups from JSON file', err);
+        await newUser.save();
+        res.json({ message: 'User registered successfully.' });
+    } catch (error) {
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-}
-
-
-function saveUsers() {
-    try {
-        fs.writeFileSync('./data/users.json', JSON.stringify(users));
-    } catch (err) {
-        console.error('Error writing users to JSON file', err);
-    }
-}
-
-function saveGroups() {
-    try {
-        fs.writeFileSync('./data/groups.json', JSON.stringify(groups));
-    } catch (err) {
-        console.error('Error writing groups to JSON file', err);
-    }
-}
-
-function getUserById(id) {
-    return users.find(user => user.id === id);
-}
-
-
-loadUsers(); // Initial load
-loadGroups(); // Initial load
-
-router.post('/auth/register', (req, res) => {
-    const { username, password, email } = req.body;
-
-    const existingUser = users.find(user => user.username === username);
-    if (existingUser) {
-        return res.status(400).json({ message: 'Username already exists.' });
-    }
-
-    const newUser = {
-        username,
-        password,
-        email,
-        id: users.length + 1,
-        roles: ['User'],
-        groups: []
-    };
-    users.push(newUser);
-    saveUsers();
-
-    res.json({ message: 'User registered successfully.' });
 });
 
-router.post('/auth/login', (req, res) => {
+router.post('/auth/login', async (req, res) => {
     const { username, password } = req.body;
-
-    const user = users.find(u => u.username === username && u.password === password);
-    if (!user) {
+  
+    try {
+      const user = await User.findOne({ username, password });
+      if (!user) {
         return res.status(400).json({ message: 'Invalid username or password.' });
+      }
+  
+      const { password: _, ...userWithoutPassword } = user.toObject();
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
     }
-
-    const { password: _, ...userWithoutPassword } = user;
-    res.json(userWithoutPassword);
 });
 
 router.post('/auth/logout', (req, res) => {
@@ -94,304 +46,306 @@ router.post('/auth/logout', (req, res) => {
     res.json({ message: 'Logged out successfully.' });
 });
 
-router.get('/groups', (req, res) => {
-    loadGroups();
-    res.json(groups);
-});
-
-
-router.post('/groups', (req, res) => {
+router.get('/groups', async (req, res) => {
     try {
-        console.log("Request body:", req.body);  // Log the request body
-        const { groupName } = req.body;
-        console.log("Extracted groupName:", groupName);  // Log the extracted groupName
-
-        // Check if the group already exists
-        const existingGroup = groups.find(group => group.name === groupName);
-        if (existingGroup) {
-            return res.status(400).json({ message: 'Group already exists.' });
-        }
-
-        const newGroup = {
-            name: groupName,
-            channels: []
-        };
-        groups.push(newGroup);
-        console.log("Updated groups array:", groups);  // Log the updated groups array
-
-        saveGroups();
-        res.json({ message: 'Group created successfully.' });
+      const groups = await Group.find({});
+      res.json(groups);
     } catch (error) {
-        console.error('Error creating group:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
-// Update a group by groupName
-router.put('/groups/:groupName', (req, res) => {
+router.post('/groups', async (req, res) => {
+    const { groupName } = req.body;
+  
+    try {
+      const existingGroup = await Group.findOne({ name: groupName });
+      if (existingGroup) {
+        return res.status(400).json({ message: 'Group already exists.' });
+      }
+  
+      const newGroup = new Group({
+        name: groupName,
+        channels: []
+      });
+  
+      await newGroup.save();
+      res.json({ message: 'Group created successfully.' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+router.put('/groups/:groupName', async (req, res) => {
     const groupName = decodeURIComponent(req.params.groupName);
-    const groupToUpdate = groups.find(group => group.name === groupName);
-
-    if (!groupToUpdate) {
+  
+    try {
+      const updatedGroup = await Group.findOneAndUpdate(
+        { name: groupName },
+        req.body,
+        { new: true }
+      );
+  
+      if (!updatedGroup) {
         return res.status(404).json({ message: 'Group not found.' });
+      }
+  
+      res.json({ message: 'Group updated successfully.' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
     }
-
-    // Update the group with the new data
-    Object.assign(groupToUpdate, req.body);
-    saveGroups();
-    res.json({ message: 'Group updated successfully.' });
 });
 
-
-// Delete a group by groupId
-router.delete('/groups/:groupName', (req, res) => {
+  router.delete('/groups/:groupName', async (req, res) => {
     const groupName = req.params.groupName;
-    const groupIndex = groups.findIndex(group => group.name === groupName);
-
-    if (groupIndex === -1) {
+  
+    try {
+      const deletedGroup = await Group.findOneAndDelete({ name: groupName });
+  
+      if (!deletedGroup) {
         return res.status(404).json({ message: 'Group not found.' });
+      }
+  
+      res.json({ message: 'Group deleted successfully.' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
     }
-
-    groups.splice(groupIndex, 1);
-    saveGroups();
-    res.json({ message: 'Group deleted successfully.' });
 });
 
-router.get('/users', (req, res) => {
-    const usersWithoutPasswords = users.map(user => {
-        const { password: _, ...userWithoutPassword } = user;
-        return userWithoutPassword;
-    });
-    res.json(usersWithoutPasswords);
+router.get('/users', async (req, res) => {
+    try {
+      const users = await User.find({}, '-password');
+      res.json(users);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
 });
 
-router.get('/groups/:groupName/channels', (req, res) => {
-    loadGroups();
+router.get('/groups/:groupName/channels', async (req, res) => {
     const groupName = decodeURIComponent(req.params.groupName);
-    const group = groups.find(g => g.name === groupName);
-    if (!group) {
+  
+    try {
+      const group = await Group.findOne({ name: groupName });
+      if (!group) {
         return res.status(404).json({ message: 'Group not found.' });
+      }
+      res.json(group.channels);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
     }
-    res.json(group.channels);
 });
 
-// Create a channel within a specific group
-
-router.post('/groups/:groupName/channels', (req, res) => {
-    loadGroups();
+router.post('/groups/:groupName/channels', async (req, res) => {
     const groupName = decodeURIComponent(req.params.groupName);
     const { channelName } = req.body;
-    const group = groups.find(g => g.name === groupName);
-    if (!group) {
+  
+    try {
+      const group = await Group.findOne({ name: groupName });
+      if (!group) {
         return res.status(404).json({ message: 'Group not found.' });
-    }
-    if (group.channels.includes(channelName)) {
+      }
+  
+      if (group.channels.includes(channelName)) {
         return res.status(400).json({ message: 'Channel already exists in this group.' });
+      }
+  
+      group.channels.push(channelName);
+      await group.save();
+      res.json({ message: `Channel ${channelName} created successfully for group ${groupName}.` });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
     }
-    group.channels.push(channelName);
-    saveGroups();
-    res.json({ message: `Channel ${channelName} created successfully for group ${groupName}.` });
 });
 
-router.put('/users/:userId/role', (req, res) => {
-    const userId = parseInt(req.params.userId);
+router.put('/users/:userId/role', async (req, res) => {
+    const userId = req.params.userId;
+    const { role } = req.body;
+  
+    try {
+      const user = await User.findByIdAndUpdate(userId, { roles: [role] }, { new: true });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found.' });
+      }
+  
+      res.json({ message: 'User role updated successfully.' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+router.get('/groups/:groupName/users', async (req, res) => {
+    const groupName = decodeURIComponent(req.params.groupName);
+  
+    try {
+      const users = await User.find({ groups: { $in: [groupName] } }, '-password');
+      res.json(users);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+router.post('/users', async (req, res) => {
+    const { username, email, password, role } = req.body;
+  
+    if (!role || !['User', 'GroupAdmin', 'SuperAdmin'].includes(role)) {
+      return res.status(400).json({ message: 'Invalid or missing user role.' });
+    }
+  
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Username already exists.' });
+    }
+  
+    const newUser = new User({
+      username,
+      email,
+      password,
+      roles: [role],
+      groups: []
+    });
+    
+    await newUser.save();
+    res.json({ message: `User created successfully with role ${role}.` });
+});
+
+router.delete('/users/:userId', async (req, res) => {
+    const userId = req.params.userId;
+  
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+  
+    if (user.roles.includes('SuperAdmin')) {
+      return res.status(403).json({ message: 'Cannot delete Super Admin.' });
+    }
+  
+    await User.findByIdAndDelete(userId);
+    res.json({ message: 'User deleted successfully.' });
+});
+
+router.post('/admin/create-user', async (req, res) => {
+    const { username, email, role, password } = req.body;
+  
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Username already exists.' });
+    }
+  
+    const newUser = new User({
+      username,
+      email,
+      password,
+      roles: [role || 'User'],
+      groups: []
+    });
+    
+    await newUser.save();
+    res.json({ message: `User created successfully with role ${role || 'User'}.` });
+});
+
+router.delete('/admin/delete-user/:userId', async (req, res) => {
+    const userId = req.params.userId;
+  
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+  
+    await User.findByIdAndDelete(userId);
+    res.json({ message: 'User deleted successfully by Super Admin.' });
+});
+
+router.get('/user-requests', async (req, res) => {
+    try {
+      const users = await User.find({}, '-password');
+      res.json(users);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+router.post('/groups/:groupName/join', async (req, res) => {
+    const groupName = decodeURIComponent(req.params.groupName);
+    const userId = req.body.userId;
+  
+    const group = await Group.findOne({ name: groupName });
+    const user = await User.findById(userId);
+  
+    if (!group || !user) {
+      return res.status(404).json({ message: 'Group or User not found.' });
+    }
+  
+    if (!user.groups.includes(groupName)) {
+      user.groups.push(groupName);
+      await user.save();
+    }
+  
+    res.json({ message: `Successfully joined the group ${groupName}.` });
+});
+
+router.post('/groups/:groupName/leave', async (req, res) => {
+    const groupName = decodeURIComponent(req.params.groupName);
+    const userId = req.body.userId;
+  
+    const group = await Group.findOne({ name: groupName });
+    const user = await User.findById(userId);
+  
+    if (!group || !user) {
+      return res.status(404).json({ message: 'Group or User not found.' });
+    }
+  
+    const groupIndex = user.groups.indexOf(groupName);
+    if (groupIndex !== -1) {
+      user.groups.splice(groupIndex, 1);
+      await user.save();
+    }
+  
+    res.json({ message: `Successfully left the group ${groupName}.` });
+});
+
+router.put('/users/:userId/role', async (req, res) => {
+    const userId = req.params.userId;
     const { role } = req.body;
 
-    const user = users.find(u => u.id === userId);
+    const user = await User.findById(userId);
     if (!user) {
         return res.status(404).json({ message: 'User not found.' });
     }
 
     user.roles = [role];
-    saveUsers();
+    await user.save();
 
     res.json({ message: 'User role updated successfully.' });
 });
 
-// Fetch users within a specific group
-router.get('/groups/:groupName/users', (req, res) => {
+router.get('/groups/:groupName/users', async (req, res) => {
     const groupName = decodeURIComponent(req.params.groupName);
-    const groupUsers = users.filter(user => user.groups.includes(groupName));
-    res.json(groupUsers);
-});
 
-// Endpoint to Create a User
-router.post('/users', (req, res) => {
-    const { username, email, password, role } = req.body;
-
-    if (!role || !['User', 'GroupAdmin', 'SuperAdmin'].includes(role)) {
-        return res.status(400).json({ message: 'Invalid or missing user role.' });
+    const usersInGroup = await User.find({ groups: groupName });
+    if (!usersInGroup) {
+        return res.status(404).json({ message: 'No users found in this group.' });
     }
 
-    const existingUser = users.find(user => user.username === username);
-    if (existingUser) {
-        return res.status(400).json({ message: 'Username already exists.' });
-    }
-
-    const newUser = {
-        username,
-        email,
-        password,
-        id: users.length + 1,
-        roles: [role],
-        groups: []
-    };
-    users.push(newUser);
-    saveUsers();
-
-    res.json({ message: `User created successfully with role ${role}.` });
-});
-
-
-
-// Endpoint to Delete a User
-router.delete('/users/:userId', (req, res) => {
-    const userId = parseInt(req.params.userId);
-
-    const user = users.find(u => u.id === userId);
-    if (!user) {
-        return res.status(404).json({ message: 'User not found.' });
-    }
-
-    // Prevent deletion of Super Admin
-    if (user.roles.includes('SuperAdmin')) {
-        return res.status(403).json({ message: 'Cannot delete Super Admin.' });
-    }
-
-    const userIndex = users.findIndex(u => u.id === userId);
-    users.splice(userIndex, 1);
-    saveUsers();
-
-    res.json({ message: 'User deleted successfully.' });
-});
-
-
-// Endpoint to Create a User by Super Admin
-router.post('/admin/create-user', (req, res) => {
-    const { username, email, role, password } = req.body; // Extract the password
-
-    const existingUser = users.find(user => user.username === username);
-    if (existingUser) {
-        return res.status(400).json({ message: 'Username already exists.' });
-    }
-
-    const newUser = {
-        username,
-        email,
-        password,  
-        id: users.length + 1,
-        roles: [role || 'User'], 
-        groups: []
-    };
-    users.push(newUser);
-    saveUsers();
-
-    res.json({ message: `User created successfully with role ${role || 'User'}.` });
-});
-
-
-// Endpoint to Delete a User by Super Admin
-router.delete('/admin/delete-user/:userId', (req, res) => {
-    const userId = parseInt(req.params.userId);
-
-    const userIndex = users.findIndex(u => u.id === userId);
-    if (userIndex === -1) {
-        return res.status(404).json({ message: 'User not found.' });
-    }
-
-    users.splice(userIndex, 1);
-    saveUsers();
-
-    res.json({ message: 'User deleted successfully by Super Admin.' });
-});
-
-// New endpoint to fetch user requests
-router.get('/user-requests', (req, res) => {
-    const usersWithoutPasswords = users.map(user => {
-        const { password: _, ...userWithoutPassword } = user;
-        return userWithoutPassword;
-    });
-    res.json(usersWithoutPasswords);
-});
-
-// New route to join a group
-router.post('/groups/:groupName/join', (req, res) => {
-    // Reload groups and users to get the most up-to-date data
-    loadGroups();
-    loadUsers();
-
-    const groupName = decodeURIComponent(req.params.groupName);
-    const group = groups.find(g => g.name === groupName);
-
-    if (!group) {
-        return res.status(404).json({ message: 'Group not found.' });
-    }
-
-    const userId = req.body.userId;  // Assuming the user's ID is sent in the request body
-    if (!userId) {
-        return res.status(400).json({ message: 'User ID is required.' });
-    }
-
-    const user = users.find(u => u.id === userId);
-    if (!user) {
-        return res.status(404).json({ message: 'User not found.' });
-    }
-
-    if (!user.groups) {
-        user.groups = [];
-    }
-
-    if (user.groups.includes(groupName)) {
-        return res.status(200).json({ message: 'User is already a member of this group.' });
-    }
-
-    // Add the user to the group
-    user.groups.push(groupName);
-
-    saveUsers();  // Save the updated users data
-
-     // Return a success message
-    res.json({ message: `Successfully joined the group ${groupName}.` });
-});
-
-// Endpoint to let a user leave a group
-router.post('/groups/:groupName/leave', (req, res) => {
-    // Reload groups and users to get the most up-to-date data
-    loadGroups();
-    loadUsers();
-
-    const groupName = decodeURIComponent(req.params.groupName);
-    const group = groups.find(g => g.name === groupName);
-
-    if (!group) {
-        return res.status(404).json({ message: 'Group not found.' });
-    }
-
-    const userId = req.body.userId;  // Assuming the user's ID is sent in the request body
-    if (!userId) {
-        return res.status(400).json({ message: 'User ID is required.' });
-    }
-
-    const user = users.find(u => u.id === userId);
-    if (!user) {
-        return res.status(404).json({ message: 'User not found.' });
-    }
-
-    if (!user.groups || !user.groups.includes(groupName)) {
-        return res.status(400).json({ message: 'User is not a member of this group.' });
-    }
-
-    // Remove the group from the user's list of groups
-    const groupIndex = user.groups.indexOf(groupName);
-    user.groups.splice(groupIndex, 1);
-
-    saveUsers();  // Save the updated users data
-
-    // Return a success message
-    res.json({ message: `Successfully left the group ${groupName}.` });
+    res.json(usersInGroup);
 });
 
 module.exports = {
     router,
-    getUserById
+    getUserById: async (_id) => await User.findById(_id)
 };
+
+  
+  
+  
+  

@@ -80,7 +80,7 @@ export class UserDashboardComponent implements OnInit {
 
   joinGroup() {
     if (this.selectedGroupToJoin !== undefined) {
-      this.groupService.joinGroup(this.selectedGroupToJoin, this.user.id).subscribe((response: any) => {
+      this.groupService.joinGroup(this.selectedGroupToJoin, this.user._id).subscribe((response: any) => {
         if (response && response.message === 'User is already a member of this group.') {
           this.currentGroup = this.selectedGroupToJoin || null;
         } else {
@@ -100,7 +100,7 @@ leaveGroup(groupName: string) {
   this.selectedGroupToLeave = groupName;
 
   if (this.selectedGroupToLeave) {
-    this.groupService.leaveGroup(this.selectedGroupToLeave, this.user.id).subscribe(response => {
+    this.groupService.leaveGroup(this.selectedGroupToLeave, this.user._id).subscribe(response => {
       if (this.currentGroup === this.selectedGroupToLeave) {
         this.currentGroup = null;
       }
@@ -114,7 +114,7 @@ leaveGroup(groupName: string) {
 }
 
   deleteSelf() {
-    this.userService.deleteUser(this.user.id).subscribe(() => {
+    this.userService.deleteUser(this.user._id).subscribe(() => {
       this.authService.logout().subscribe(() => {
         this.router.navigate(['/login']);
       });

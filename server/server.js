@@ -5,6 +5,15 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const session = require('express-session');
 const routes = require('./routes');
+const mongoose = require('mongoose'); // Import mongoose
+
+// Connect to MongoDB
+mongoose.connect('mongodb://127.0.0.1:27017/chatApp', { 
+    useNewUrlParser: true, 
+    useUnifiedTopology: true 
+})
+.then(() => console.log('MongoDB Connected'))
+.catch(err => console.log(err));
 
 const app = express();
 const server = http.createServer(app);
@@ -38,11 +47,12 @@ app.use('/api', routes.router);
 io.on('connection', (socket) => {
     console.log('New user connected');
 
-    socket.on('send message', (data) => {
-        const user = routes.getUserById(data.sender);
+    socket.on('send message', async (data) => {
+        const user = await routes.getUserById(data.sender);
         const username = user ? user.username : `User with ID ${data.sender}`;
         io.to(data.group).emit('chat message', { ...data, username });
     });
+    
 
     socket.on('disconnect', () => {
         console.log('User disconnected');

@@ -32,7 +32,7 @@ if (!this.username || !this.password) {
 
 this.authService.login(this.username, this.password).subscribe(
   user => {
-    if (user && user.id) { // Check if the response has an 'id' property, indicating a successful login
+    if (user && user._id) { // Check if the response has an 'id' property, indicating a successful login
       // Check user roles and navigate accordingly
       if (user.roles.includes('SuperAdmin')) {
         this.router.navigate(['/super-admin-dashboard']);

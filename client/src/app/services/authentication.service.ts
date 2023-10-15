@@ -35,13 +35,15 @@ export class AuthenticationService {
   login(username: string, password: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/login`, { username, password }).pipe(
       tap(response => {
-        if (response && response.id) {
+        console.log('Server response: ', response);  // This line logs the server response to the console
+        if (response && response._id) {  // Changed 'response.id' to 'response._id'
           sessionStorage.setItem('currentUser', JSON.stringify(response));
           this.currentUserSubject.next(response);
         }
       })
     );
   }
+  
 
   register(username: string, password: string, email: string, role: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/register`, { username, password, email, role });
@@ -73,7 +75,7 @@ export class AuthenticationService {
 
   // Join a group using socket
   joinGroup(group: string): void {
-    const userId = this.currentUserValue?.id;
+    const userId = this.currentUserValue?._id;
     if (userId && this.socket) {
       this.socket.emit('join group', { group: group, userId: userId });
     }
@@ -81,7 +83,7 @@ export class AuthenticationService {
 
   // Leave a group using socket
   leaveGroup(group: string): void {
-    const userId = this.currentUserValue?.id;
+    const userId = this.currentUserValue?._id;
     if (userId && this.socket) {
       this.socket.emit('leave group', { group: group, userId: userId });
     }

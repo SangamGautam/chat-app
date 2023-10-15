@@ -30,7 +30,7 @@ export class ChatComponent implements OnInit, OnChanges {
     this.socket = io('http://localhost:3000');
 
     this.socket.on('chat message', (msg: { sender: string, content: string, username: string }) => {
-      const type = msg.sender === this.authService.currentUserValue.id ? 'sent' : 'received';
+      const type = msg.sender === this.authService.currentUserValue._id ? 'sent' : 'received';
       const senderName = type === 'sent' ? 'You' : msg.username;
       this.messages.push({ sender: senderName, content: msg.content, type });
     });
@@ -51,14 +51,14 @@ export class ChatComponent implements OnInit, OnChanges {
   sendMessage(): void {
     if (this.currentMessage.trim() === '') return;
   
-    const userId = this.authService.currentUserValue.id;  
+    const userId = this.authService.currentUserValue._id;  
     this.socket.emit('send message', { content: this.currentMessage, group: this.currentGroup, sender: userId });
     this.currentMessage = '';
   }
 
   joinChannel(channel: string): void {
     if (this.socket) {
-      const userId = this.authService.currentUserValue.id;
+      const userId = this.authService.currentUserValue._id;
       this.socket.emit('join channel', { group: channel, userId: userId });
       
       if (!this.joinedChannels.includes(channel)) {
@@ -73,7 +73,7 @@ export class ChatComponent implements OnInit, OnChanges {
   leaveChannel(channel: string | null): void {
     if (!channel) return;
 
-    const userId = this.authService.currentUserValue.id;
+    const userId = this.authService.currentUserValue._id;
     this.socket.emit('leave channel', { group: channel, userId: userId });
     
     const index = this.joinedChannels.indexOf(channel);

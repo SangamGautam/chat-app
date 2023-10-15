@@ -9,7 +9,7 @@ interface Group {
 }
 
 interface Channel {
-  id: string;
+  _id: string;
   name: string;
 }
 
