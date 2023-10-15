@@ -1,37 +1,56 @@
 const express = require('express');
 const router = express.Router();
-const { io } = require('./server');  // Import io from server.js
 const fs = require('fs');
-const { io } = require('./server');  // Import io from server.js
 
-// Define the paths to the JSON data files
-const usersFilePath = path.join(__dirname, 'data', 'users.json');
-const groupsFilePath = path.join(__dirname, 'data', 'groups.json');
+let users = [];
+let groups = [];
 
-// Utility functions to load and save data
-const loadData = (filePath) => {
+// Load users from file
+function loadUsers() {
     try {
-        const data = fs.readFileSync(filePath, 'utf8');
-        return JSON.parse(data);
+        const data = fs.readFileSync('./data/users.json', 'utf8');
+        users = JSON.parse(data);
     } catch (err) {
-        console.error(`Error reading data from ${filePath}:`, err);
-        return [];
+        console.log('Error reading users from JSON file', err);
     }
-};
+}
 
-const saveData = (filePath, data) => {
+// Load groups from file
+function loadGroups() {
     try {
-        fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+        const groupData = fs.readFileSync('./data/groups.json', 'utf8');
+        groups = JSON.parse(groupData);
+        groups.forEach(group => {
+            if (!group.channels) {
+                group.channels = [];
+            }
+        });
     } catch (err) {
-        console.error(`Error writing data to ${filePath}:`, err);
+        console.log('Error reading groups from JSON file', err);
     }
-};
+}
 
-// Load initial data
-let users = loadData(usersFilePath);
-let groups = loadData(groupsFilePath);
 
-// Authentication Routes
+function saveUsers() {
+    try {
+        fs.writeFileSync('./data/users.json', JSON.stringify(users));
+    } catch (err) {
+        console.error('Error writing users to JSON file', err);
+    }
+}
+
+function saveGroups() {
+    try {
+        fs.writeFileSync('./data/groups.json', JSON.stringify(groups));
+    } catch (err) {
+        console.error('Error writing groups to JSON file', err);
+    }
+}
+
+
+loadUsers(); // Initial load
+loadGroups(); // Initial load
+
 router.post('/auth/register', (req, res) => {
     const { username, password, email } = req.body;
 
@@ -291,34 +310,44 @@ router.get('/user-requests', (req, res) => {
     res.json(usersWithoutPasswords);
 });
 
-// Endpoint to request to join a group
-router.post('/groups/:groupName/requestToJoin', (req, res) => {
+// New route to join a group
+router.post('/groups/:groupName/join', (req, res) => {
+    // Reload groups and users to get the most up-to-date data
+    loadGroups();
+    loadUsers();
+
     const groupName = decodeURIComponent(req.params.groupName);
     const group = groups.find(g => g.name === groupName);
-    
+
     if (!group) {
         return res.status(404).json({ message: 'Group not found.' });
     }
 
-    // TODO: Logic to handle the request to join the group
-    // This can involve adding the user to a waiting list, sending a notification to group admins, etc.
-    // For now, we'll just simulate adding the user to the group's waiting list.
-    if (!group.waitingList) {
-        group.waitingList = [];
-    }
-    const userId = req.body.userId; // Assuming the user's ID is sent in the request body
-    if (userId && !group.waitingList.includes(userId)) {
-        group.waitingList.push(userId);
-        saveGroups(); // Save the updated groups data
+    const userId = req.body.userId;  // Assuming the user's ID is sent in the request body
+    if (!userId) {
+        return res.status(400).json({ message: 'User ID is required.' });
     }
 
-    res.json({ message: `Request to join group ${groupName} received.` });
-});
+    const user = users.find(u => u.id === userId);
+    if (!user) {
+        return res.status(404).json({ message: 'User not found.' });
+    }
 
-// Save data before shutting down the server
-process.on('exit', () => {
-    saveData(usersFilePath, users);
-    saveData(groupsFilePath, groups);
+    if (!user.groups) {
+        user.groups = [];
+    }
+
+    if (user.groups.includes(groupName)) {
+        return res.status(200).json({ message: 'User is already a member of this group.' });
+    }
+
+    // Add the user to the group
+    user.groups.push(groupName);
+
+    saveUsers();  // Save the updated users data
+
+     // Return a success message
+    res.json({ message: `Successfully joined the group ${groupName}.` });
 });
 
 module.exports = router;

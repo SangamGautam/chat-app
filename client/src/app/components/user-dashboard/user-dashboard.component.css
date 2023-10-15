@@ -56,6 +56,11 @@
     padding: 15px;
 }
 
+/* General Styles */
+.container {
+    font-family: 'Arial', sans-serif;
+}
+
 .card-footer {
     padding: 10px;
 }

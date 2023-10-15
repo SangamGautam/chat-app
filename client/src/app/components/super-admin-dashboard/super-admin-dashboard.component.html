@@ -71,20 +71,4 @@
             </ul>
         </div>
     </div>
-
-    <!-- User Requests Section -->
-    <div class="card mb-4">
-        <div class="card-header">
-            User Requests to Join Groups
-        </div>
-        <div class="card-body">
-            <ul class="list-group">
-                <li class="list-group-item" *ngFor="let request of userRequests">
-                    {{ request.username }} wants to join {{ request.groupName }}
-                    <button class="btn btn-success btn-sm float-right ml-2" (click)="approveUserRequest(request)">Approve</button>
-                    <button class="btn btn-danger btn-sm float-right" (click)="denyUserRequest(request)">Deny</button>
-                </li>
-            </ul>
-        </div>
-    </div>
 </div>

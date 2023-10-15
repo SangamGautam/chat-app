@@ -1,1 +1,17 @@
-<p>chat works!</p>
+<div *ngIf="currentGroup" class="chat-container">
+    <div class="chat-header">
+      <h4>{{ currentGroup }}</h4>
+    </div>
+  
+    <div class="chat-messages">
+      <div *ngFor="let msg of messages" [class]="msg.type">
+        <strong>{{ msg.sender }}</strong>: {{ msg.content }}
+      </div>
+    </div>
+  
+    <div class="chat-input">
+      <textarea [(ngModel)]="currentMessage" placeholder="Type your message here..."></textarea>
+      <button (click)="sendMessage()">Send</button>
+    </div>
+  </div>
+  

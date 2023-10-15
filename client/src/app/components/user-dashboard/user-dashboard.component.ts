@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { AuthenticationService } from '../../services/authentication.service';
 import { UserService } from '../../services/user.service';
 import { GroupService } from '../../services/group.service';
 import { Router } from '@angular/router';
+import { ChatComponent } from '../chat/chat.component';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-user-dashboard',
@@ -10,12 +12,13 @@ import { Router } from '@angular/router';
   styleUrls: ['./user-dashboard.component.css']
 })
 export class UserDashboardComponent implements OnInit {
+  @ViewChild(ChatComponent) private chatComponent!: ChatComponent;
+
   user: any = {};
   users: any[] = [];
   groups: any[] = [];
   currentGroup: string | null = null;
-  currentGroupChannels: string[] = [];
-  message: string = '';
+
   newUser: { username: string, email: string, role: string, password: string } = { 
     username: '', 
     email: '', 
@@ -27,12 +30,12 @@ export class UserDashboardComponent implements OnInit {
 
   selectedGroupToJoin?: string;
   selectedGroupToLeave?: string;
-  selectedChannelToJoin?: string;
 
   constructor(
     private authService: AuthenticationService,
     private userService: UserService,
     private groupService: GroupService,
+    private http: HttpClient,
     private router: Router
   ) { }
 
@@ -60,78 +63,52 @@ export class UserDashboardComponent implements OnInit {
 
   openChat(group: string) {
     this.currentGroup = group;
-    // Load chat messages for the selected group
-    // For demonstration purposes, I'm using dummy data. You should replace this with an actual API call.
-    this.currentGroupChannels = ['Channel1', 'Channel2', 'Channel3'];  // Replace with actual channels for the selected group
-  }
-  
-
-  sendMessage() {
-    // Logic to send the message to the current group
   }
 
   createUser() {
     this.userService.createUser(this.newUser.username, this.newUser.email, this.newUser.role, this.newUser.password)
     .subscribe(response => {
         this.loadUsers();
-        this.newUser = { username: '', email: '', role: 'User', password: '' }; // Reset the form
+        this.newUser = { username: '', email: '', role: 'User', password: '' };
     }, error => {
         console.error('Error creating user:', error);
     });
   }
 
-  deleteUser(userId: number) {
-    this.userService.deleteUser(userId.toString()).subscribe(() => {
-      this.loadUsers();
-    }, error => {
-      console.error('Error deleting user:', error);
-    });
+  joinGroup() {
+    if (this.selectedGroupToJoin !== undefined) {
+      this.groupService.joinGroup(this.selectedGroupToJoin, this.user.id).subscribe(response => {
+        if (response.message === 'User is already a member of this group.') {
+          this.currentGroup = this.selectedGroupToJoin || null;
+        } else {
+          // this.message = 'Joined group successfully.';
+          this.currentGroup = this.selectedGroupToJoin || null;
+        }
+        this.loadGroups();
+      }, error => {
+        console.error('Error joining group:', error);
+      });
+    } else {
+      console.error('selectedGroupToJoin is undefined or null');
+    }
   }
 
-  // Register interest in a group
-requestToJoinGroup() {
-  if (!this.selectedGroupToJoin) {
-    console.error('No group selected to join.');
-    return;
+  leaveGroup() {
+    if (this.selectedGroupToLeave) {
+      this.groupService.leaveGroup(this.selectedGroupToLeave).subscribe(response => {
+        // this.message = 'Left group successfully.';
+        if (this.currentGroup === this.selectedGroupToLeave) {
+          this.currentGroup = null;
+        }
+        this.loadGroups();
+      }, error => {
+        console.error('Error leaving group:', error);
+      });
+    } else {
+      console.error('selectedGroupToLeave is undefined or null');
+    }
   }
 
-  this.groupService.requestToJoinGroup(this.selectedGroupToJoin).subscribe(response => {
-    this.message = 'Request sent to join group.';
-  }, error => {
-    console.error('Error requesting to join group:', error);
-  });
-}
-
-
-// Join a channel within a group
-joinChannel() {
-  if (this.currentGroup && this.selectedChannelToJoin) {
-    this.groupService.joinChannel(this.currentGroup, this.selectedChannelToJoin).subscribe(response => {
-      this.message = 'Joined channel successfully.';
-    }, error => {
-      console.error('Error joining channel:', error);
-    });
-  } else {
-    console.error('currentGroup or selectedChannelToJoin is undefined or null');
-  }
-}
-
-// Leave a group
-leaveGroup() {
-  if (this.selectedGroupToLeave) {
-    this.groupService.leaveGroup(this.selectedGroupToLeave).subscribe(response => {
-      this.message = 'Left group successfully.';
-      this.loadGroups(); // Refresh the list of groups
-    }, error => {
-      console.error('Error leaving group:', error);
-    });
-  } else {
-    console.error('selectedGroupToLeave is undefined or null');
-  }
-}
-
-
-  // Delete the user
   deleteSelf() {
     this.userService.deleteUser(this.user.id).subscribe(() => {
       this.authService.logout().subscribe(() => {

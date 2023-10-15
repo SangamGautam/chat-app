@@ -32,7 +32,6 @@ export class SuperAdminDashboardComponent implements OnInit {
   ngOnInit(): void {
     this.loadGroups();
     this.loadUsers();
-    this.loadUserRequests();
   }
 
   loadGroups() {
@@ -55,7 +54,7 @@ export class SuperAdminDashboardComponent implements OnInit {
     if (this.newGroup.name.trim()) {
       this.groupService.createGroup(this.newGroup.name).subscribe(() => {
         this.loadGroups();
-        this.newGroup.name = ''; // Reset the form
+        this.newGroup.name = '';
       }, error => {
         console.error('Error creating group:', error);
       });
@@ -89,39 +88,13 @@ export class SuperAdminDashboardComponent implements OnInit {
     });
   }
 
-  loadUserRequests() {
-    this.userService.getUserRequests().subscribe(data => {
-        this.userRequests = data;
-    }, error => {
-        console.error('Error fetching user requests:', error);
-    });
-  }
-
-  approveUserRequest(request: any) {
-    this.groupService.approveUserRequest(request.userId, request.groupName).subscribe(() => {
-        const index = this.userRequests.indexOf(request);
-        if (index > -1) {
-            this.userRequests.splice(index, 1);
-        }
-    }, error => {
-        console.error('Error approving user request:', error);
-    });
-  }
-
-  denyUserRequest(request: any) {
-    const index = this.userRequests.indexOf(request);
-    if (index > -1) {
-        this.userRequests.splice(index, 1);
-    }
-  }
-
   createUser() {
     this.userService.createUser(this.newUser.username, this.newUser.email, this.newUser.role, this.newUser.password)
-    .subscribe(response => {
-        this.loadUsers();
-        this.newUser = { username: '', email: '', role: 'User', password: '' }; // Reset the form
+    .subscribe(() => {
+      this.loadUsers();
+      this.newUser = { username: '', email: '', role: 'User', password: '' };
     }, error => {
-        console.error('Error creating user:', error);
+      console.error('Error creating user:', error);
     });
   }
 
