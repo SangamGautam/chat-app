@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { GroupService } from '../../services/group.service';
 import { UserService } from '../../services/user.service';
 import { AuthenticationService } from '../../services/authentication.service';
 import { Router } from '@angular/router';
+import { ChatComponent } from '../chat/chat.component';
 
 @Component({
   selector: 'app-group-admin-dashboard',
@@ -10,11 +11,15 @@ import { Router } from '@angular/router';
   styleUrls: ['./group-admin-dashboard.component.css']
 })
 export class GroupAdminDashboardComponent implements OnInit {
+  @ViewChild(ChatComponent) private chatComponent!: ChatComponent;
+
   selectedGroup: any = null; // To store the currently selected group
   groupUsers: any[] = [];
   newGroupName: string = '';
   newChannelName: string = '';
   allGroups: any[] = [];
+  allChannels: any[] = [];
+  currentChannel: string = '';
 
   constructor(
     private groupService: GroupService,
@@ -29,16 +34,38 @@ export class GroupAdminDashboardComponent implements OnInit {
 
   selectGroup(group: any) {
     this.selectedGroup = group;
+    this.loadChannelsForGroup();
     this.loadGroupUsers();
+
+    // Open the chat for the selected group
+    if (this.chatComponent) {
+      this.chatComponent.currentGroup = this.selectedGroup.name;
+      this.chatComponent.joinChannel(this.selectedGroup.name);
+      this.chatComponent.messages = []; // Clear previous messages from the chat component
+    }
+  }
+
+  loadChannelsForGroup() {
+    this.groupService.getGroupChannels(this.selectedGroup.name).subscribe((data: any[]) => {
+        this.allChannels = data;
+    }, (error: any) => {
+        console.error('Error fetching channels:', error);
+    });
+ }
+ 
+
+  selectChannel(channelName: string) {
+    this.currentChannel = channelName;
   }
 
   // Group-related methods
   loadAllGroups() {
-    this.groupService.getAllGroups().subscribe(
-      data => this.allGroups = data,
-      error => console.error('Error fetching groups:', error)
-    );
-  }
+    this.groupService.getAllGroups().subscribe((data: any[]) => {
+       this.allGroups = data;
+    }, (error: any) => {
+       console.error('Error fetching groups:', error);
+    });
+ } 
 
   createGroup() {
     if (!this.newGroupName) return;
@@ -108,6 +135,14 @@ export class GroupAdminDashboardComponent implements OnInit {
       error => console.error('Error editing user:', error)
     );
   }
+
+  addUserToGroup(userId: number) {
+    this.groupService.addUserToGroup(this.selectedGroup.name, userId.toString()).subscribe(() => {
+        this.loadGroupUsers();
+    }, error => {
+        console.error('Error adding user to group:', error);
+    });
+ } 
 
   removeUserFromGroup(user: any) {
     this.groupService.removeUser(this.selectedGroup.name, user.id).subscribe(

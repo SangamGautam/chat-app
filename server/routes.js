@@ -47,6 +47,10 @@ function saveGroups() {
     }
 }
 
+function getUserById(id) {
+    return users.find(user => user.id === id);
+}
+
 
 loadUsers(); // Initial load
 loadGroups(); // Initial load
@@ -350,4 +354,44 @@ router.post('/groups/:groupName/join', (req, res) => {
     res.json({ message: `Successfully joined the group ${groupName}.` });
 });
 
-module.exports = router;
+// Endpoint to let a user leave a group
+router.post('/groups/:groupName/leave', (req, res) => {
+    // Reload groups and users to get the most up-to-date data
+    loadGroups();
+    loadUsers();
+
+    const groupName = decodeURIComponent(req.params.groupName);
+    const group = groups.find(g => g.name === groupName);
+
+    if (!group) {
+        return res.status(404).json({ message: 'Group not found.' });
+    }
+
+    const userId = req.body.userId;  // Assuming the user's ID is sent in the request body
+    if (!userId) {
+        return res.status(400).json({ message: 'User ID is required.' });
+    }
+
+    const user = users.find(u => u.id === userId);
+    if (!user) {
+        return res.status(404).json({ message: 'User not found.' });
+    }
+
+    if (!user.groups || !user.groups.includes(groupName)) {
+        return res.status(400).json({ message: 'User is not a member of this group.' });
+    }
+
+    // Remove the group from the user's list of groups
+    const groupIndex = user.groups.indexOf(groupName);
+    user.groups.splice(groupIndex, 1);
+
+    saveUsers();  // Save the updated users data
+
+    // Return a success message
+    res.json({ message: `Successfully left the group ${groupName}.` });
+});
+
+module.exports = {
+    router,
+    getUserById
+};

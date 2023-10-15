@@ -1,82 +1,120 @@
 /* General Styles */
 .container {
     font-family: 'Arial', sans-serif;
+    color: #333;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-/* Card Styles */
 .card {
+    border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border: none;
+    overflow: hidden;
+    margin-bottom: 25px;
 }
 
 .card-header {
-    background-color: #f8f9fa;
+    background-color: #2C3E50;
+    color: #ecf0f1;
     font-weight: bold;
     font-size: 1.2em;
+    padding: 15px 20px;
 }
 
-/* Button Styles */
+.card-body {
+    padding: 20px;
+}
+
+/* Buttons */
 .btn {
     border-radius: 5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin: 0 5px;
+    transition: all 0.3s ease;
 }
 
-.btn-sm {
-    padding: 5px 10px;
+.btn:hover {
+    opacity: 0.8;
 }
 
-.btn-warning {
+.btn-info {
+    background-color: #3498db;
     color: #fff;
 }
 
-/* Input and Form Styles */
-.form-control {
-    border-radius: 5px;
-    border: 1px solid #ced4da;
+.btn-danger {
+    background-color: #e74c3c;
+    color: #fff;
 }
 
-/* Table Styles */
-.table {
+.btn-primary {
+    background-color: #2980b9;
+    color: #fff;
+}
+
+.btn-success {
+    background-color: #27ae60;
+    color: #fff;
+}
+
+.btn-warning {
+    background-color: #f39c12;
+    color: #fff;
+}
+
+/* Inputs and Forms */
+input[type="text"], input[type="email"], input[type="password"], select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: border 0.3s ease;
+}
+
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, select:focus {
+    border: 1px solid #2980b9;
+    outline: none;
+}
+
+/* Tables */
+table {
+    width: 100%;
     border-collapse: collapse;
 }
 
-.table-bordered {
-    border: 1px solid #dee2e6;
+table, th, td {
+    border: 1px solid #ddd;
 }
 
-.table-bordered th, .table-bordered td {
-    border: 1px solid #dee2e6;
+th, td {
+    padding: 8px 12px;
+    text-align: left;
 }
 
-/* List Group Styles */
+th {
+    background-color: #f5f5f5;
+}
+
+tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* List Groups */
+.list-group {
+    padding: 0;
+    margin: 0;
+}
+
 .list-group-item {
-    position: relative;
-    display: block;
-    padding: 0.75rem 1.25rem;
-    background-color: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.125);
+    list-style: none;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    margin-bottom: -1px;
+    transition: background-color 0.3s ease;
 }
 
-/* Utility Classes */
-.float-right {
-    float: right !important;
-}
-
-.ml-2 {
-    margin-left: 0.5rem !important;
-}
-
-.mb-2 {
-    margin-bottom: 0.5rem !important;
-}
-
-.mb-3 {
-    margin-bottom: 1rem !important;
-}
-
-.mb-4 {
-    margin-bottom: 1.5rem !important;
-}
-
-.mt-4 {
-    margin-top: 1.5rem !important;
+.list-group-item:hover {
+    background-color: #f9f9f9;
 }

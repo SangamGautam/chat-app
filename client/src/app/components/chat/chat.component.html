@@ -4,8 +4,9 @@
     </div>
   
     <div class="chat-messages">
-      <div *ngFor="let msg of messages" [class]="msg.type">
-        <strong>{{ msg.sender }}</strong>: {{ msg.content }}
+      <div *ngFor="let msg of messages" [ngClass]="{'sent': msg.type === 'sent', 'received': msg.type === 'received'}">
+        <strong *ngIf="msg.type === 'received'">{{ msg.sender }}</strong>
+        <span *ngIf="msg.type === 'sent'">You</span>: {{ msg.content }}
       </div>
     </div>
   

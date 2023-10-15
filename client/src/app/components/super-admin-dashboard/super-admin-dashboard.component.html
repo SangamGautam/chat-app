@@ -1,17 +1,15 @@
 <div class="container mt-5">
     <!-- Super Admin Dashboard Header -->
-    <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            Super Admin Dashboard
-            <button class="btn btn-warning btn-sm" (click)="logout()">Logout</button>
+    <div class="card shadow mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
+            <h5>Super Admin Dashboard</h5>
+            <button class="btn btn-light btn-sm" (click)="logout()">Logout</button>
         </div>
     </div>
 
     <!-- User Management Section -->
     <div class="card mb-4">
-        <div class="card-header">
-            Manage Users
-        </div>
+        <div class="card-header bg-warning">Manage Users</div>
         <div class="card-body">
             <h5>Create New User</h5>
             <div class="mb-3">
@@ -52,23 +50,43 @@
 
     <!-- Group Management Section -->
     <div class="card mb-4">
-        <div class="card-header">
-            Manage Groups
-        </div>
+        <div class="card-header bg-success text-white">Manage Groups</div>
         <div class="card-body">
+            <!-- Create New Group -->
             <h5>Create New Group</h5>
             <div class="mb-3">
                 <input type="text" class="form-control mb-2" placeholder="Group Name" [(ngModel)]="newGroup.name">
                 <button class="btn btn-success" (click)="createGroup()">Create Group</button>
             </div>
+            
+            <!-- Channels in Selected Group -->
+            <h5 class="mt-4" *ngIf="selectedGroup">Channels in {{ selectedGroup }}</h5>
+            <div class="mb-3" *ngIf="selectedGroup">
+                <input type="text" class="form-control mb-2" placeholder="Channel Name" [(ngModel)]="newChannel.name">
+                <button class="btn btn-primary" (click)="createChannel(selectedGroup, newChannel.name)">Create Channel</button>
+            </div>
+
+            <!-- Existing Groups with Actions -->
             <h5 class="mt-4">Existing Groups</h5>
             <ul class="list-group">
                 <li class="list-group-item" *ngFor="let group of groups">
                     {{ group.name }}
+                    <!-- Group Actions -->
                     <button class="btn btn-primary btn-sm float-right ml-2" (click)="editGroup(group)">Edit</button>
-                    <button class="btn btn-danger btn-sm float-right" (click)="deleteGroup(group)">Delete</button>
+                    <button class="btn btn-danger btn-sm float-right ml-2" (click)="deleteGroup(group)">Delete</button>
+                    <button class="btn btn-info btn-sm float-right ml-2" (click)="selectGroup(group)">Chat</button>
+                    <button class="btn btn-warning btn-sm float-right ml-2" (click)="manageGroupUsers(group)">Manage Users</button>
                 </li>
             </ul>
         </div>
     </div>
+
+    <!-- Chat Component Section -->
+    <div class="card shadow mt-4" *ngIf="selectedGroup">
+        <div class="card-header bg-info text-white">Chat for Group: {{ selectedGroup }}</div>
+        <div class="card-body">
+            <app-chat [currentGroup]="selectedGroup"></app-chat>
+        </div>
+    </div>
 </div>
+

@@ -3,51 +3,49 @@
         <!-- Left Panel: User Profile and Groups -->
         <div class="col-md-4">
             <!-- User Profile Information -->
-            <div class="card mb-4">
+            <div class="profile-card mb-4">
                 <div class="card-header">
-                    User Profile
-                    <button class="btn btn-warning btn-sm float-right" (click)="logout()">Logout</button>
+                    <h5>User Profile</h5>
+                    <button class="btn btn-warning btn-sm logout-btn" (click)="logout()">Logout</button>
                 </div>
                 <div class="card-body">
                     <p><strong>Username:</strong> {{ user.username }}</p>
                     <p><strong>Email:</strong> {{ user.email }}</p>
                     <p><strong>ID:</strong> {{ user.id }}</p>
                     <p><strong>Roles:</strong> {{ user.roles.join(', ') }}</p>
-                    <button class="btn btn-danger" (click)="deleteSelf()">Delete My Account</button>
+                    <button class="btn btn-danger delete-btn" (click)="deleteSelf()">Delete My Account</button>
                 </div>
             </div>
 
             <!-- User's Groups -->
-            <div class="card">
+            <div class="group-card">
                 <div class="card-header">
-                    Your Groups
-                    <div class="float-right">
-                        <select [(ngModel)]="selectedGroupToJoin" class="form-control-sm">
+                    <h5>Your Groups</h5>
+                    <div class="group-action">
+                        <select [(ngModel)]="selectedGroupToJoin" class="group-dropdown">
                             <option *ngFor="let group of groups" [value]="group.name">{{ group.name }}</option>
                         </select>
-                        <button class="btn btn-light btn-sm ml-2" (click)="joinGroup()">Join</button>
+                        <button class="btn btn-light btn-sm join-btn" (click)="joinGroup()">Join</button>
                     </div>
                 </div>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item" *ngFor="let group of user.groups">
-                        <span (click)="openChat(group)">{{ group }}</span>
-                        <button class="btn btn-sm btn-danger float-right" (click)="leaveGroup()">Leave</button>
+                <ul class="group-list">
+                    <li *ngFor="let group of user.groups">
+                        <span class="group-name" (click)="openChat(group)">{{ group }}</span>
+                        <button class="btn btn-sm btn-danger leave-btn" (click)="leaveGroup(group)">Leave</button>
                     </li>
                 </ul>
             </div>
         </div>
 
         <!-- Right Panel: Chat Interface -->
-        <div class="col-md-8">
-            <div class="card" *ngIf="currentGroup">
-                <div class="card-header">
-                    Chatting in {{ currentGroup }}
+        <div class="col-md-8 chat-section">
+            <div class="chat-card" *ngIf="currentGroup">
+                <div class="chat-header">
+                    <h5>Chatting in {{ currentGroup }}</h5>
                 </div>
-                <div class="card-body chat-window">
-                    <!-- Pass the currentGroup as an input to the ChatComponent -->
-                    <app-chat [currentGroup]="currentGroup"></app-chat>
-                </div>
+                <!-- Embed the chat component for the selected group -->
+                <app-chat [currentGroup]="currentGroup"></app-chat>
             </div>
-        </div>
+        </div>        
     </div>
 </div>

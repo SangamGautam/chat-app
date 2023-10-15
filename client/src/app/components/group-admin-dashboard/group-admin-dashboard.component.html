@@ -1,50 +1,57 @@
 <div class="container mt-5">
 
     <!-- Header Section -->
-    <div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-4">
         <h2>Group Admin Dashboard</h2>
-        <button class="btn btn-warning" (click)="logout()">Logout</button>
+        <button class="btn btn-outline-warning" (click)="logout()">Logout</button>
     </div>
 
     <!-- Group Creation Section -->
     <section class="group-creation-section mt-4">
-        <h3>Create Group</h3>
-        <input type="text" [(ngModel)]="newGroupName" placeholder="Enter Group Name">
-        <button class="btn btn-success" (click)="createGroup()">Create Group</button>
+        <h3 class="mb-3 border-bottom">Create Group</h3>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" [(ngModel)]="newGroupName" placeholder="Enter Group Name">
+            <div class="input-group-append">
+                <button class="btn btn-success" (click)="createGroup()">Create Group</button>
+            </div>
+        </div>
     </section>
 
- <!-- All Groups Display Section -->
-<section class="all-groups-section mt-4">
-    <h3>All Groups</h3>
-    <ol class="row list-unstyled">
-        <li class="col-md-4" *ngFor="let group of allGroups">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h1 class="card-title">
-                        <button class="btn btn-link p-0 fs-lg" (click)="selectGroup(group)">{{ group.name }}</button>
-                    </h1>
-                    <div class="mt-2">
-                        <button class="btn btn-secondary fs-sm" (click)="editGroupPrompt(group)">Edit</button>
-                        <button class="btn btn-danger ml-2 fs-sm" (click)="deleteGroupPrompt(group)">Delete</button>
+    <!-- All Groups Display Section -->
+    <section class="all-groups-section mt-4">
+        <h3 class="mb-3 border-bottom">All Groups</h3>
+        <div class="row">
+            <div class="col-md-4" *ngFor="let group of allGroups">
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <button class="btn btn-link text-dark p-0 fs-5" (click)="selectGroup(group)">{{ group.name }}</button>
+                        </h5>
+                        <div class="mt-2">
+                            <button class="btn btn-outline-secondary btn-sm" (click)="editGroupPrompt(group)">Edit</button>
+                            <button class="btn btn-outline-danger btn-sm ml-2" (click)="deleteGroupPrompt(group)">Delete</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </li>
-    </ol>
-</section>
+        </div>
+    </section>
 
     <!-- Channel Creation Section -->
-<section class="channel-creation-section mt-4" *ngIf="selectedGroup">
-    <h3>Create Channel in {{ selectedGroup.name }}</h3>
-    <input type="text" [(ngModel)]="newChannelName" placeholder="Enter Channel Name">
-    <button class="btn btn-success" (click)="createChannel()">Create Channel</button>
-</section>
-
+    <section class="channel-creation-section mt-4" *ngIf="selectedGroup">
+        <h3 class="mb-3 border-bottom">Create Channel in {{ selectedGroup.name }}</h3>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" [(ngModel)]="newChannelName" placeholder="Enter Channel Name">
+            <div class="input-group-append">
+                <button class="btn btn-success" (click)="createChannel()">Create Channel</button>
+            </div>
+        </div>
+    </section>
 
     <!-- User Management Section -->
     <section class="users-section mt-4">
-        <h3>Manage Users in Group</h3>
-        <table class="table table-bordered">
+        <h3 class="mb-3 border-bottom">Manage Users in Group</h3>
+        <table class="table table-striped">
             <thead>
                 <tr>
                     <th>Username</th>
@@ -58,13 +65,21 @@
                     <td>{{ user.roles[0] }}</td>
                     <td>
                         <button class="btn btn-primary btn-sm" (click)="editUser(user)">Edit</button>
-                        <button class="btn btn-danger btn-sm" (click)="removeUserFromGroup(user)">Remove</button>
-                        <button class="btn btn-warning btn-sm" (click)="banUserFromChannel(user)">Ban from Channel</button>
-                        <button class="btn btn-info btn-sm" (click)="reportToSuperAdmin(user)">Report</button>
+                        <button class="btn btn-danger btn-sm ml-2" (click)="removeUserFromGroup(user)">Remove</button>
+                        <button class="btn btn-warning btn-sm ml-2" (click)="banUserFromChannel(user)">Ban</button>
+                        <button class="btn btn-info btn-sm ml-2" (click)="reportToSuperAdmin(user)">Report</button>
                     </td>
                 </tr>
             </tbody>
         </table>
+    </section>
+
+    <!-- Group Chat Section -->
+    <section class="group-chat-section mt-4" *ngIf="selectedGroup">
+        <h3 class="mb-3 border-bottom">Group Chat: {{ selectedGroup.name }}</h3>
+        <ng-container *ngIf="selectedGroup">
+            <app-chat [currentGroup]="selectedGroup.name"></app-chat>
+        </ng-container>
     </section>
 
 </div>

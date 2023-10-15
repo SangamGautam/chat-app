@@ -63,6 +63,9 @@ export class UserDashboardComponent implements OnInit {
 
   openChat(group: string) {
     this.currentGroup = group;
+    if (this.chatComponent) {
+      this.chatComponent.currentGroup = group;
+    }
   }
 
   createUser() {
@@ -77,8 +80,8 @@ export class UserDashboardComponent implements OnInit {
 
   joinGroup() {
     if (this.selectedGroupToJoin !== undefined) {
-      this.groupService.joinGroup(this.selectedGroupToJoin, this.user.id).subscribe(response => {
-        if (response.message === 'User is already a member of this group.') {
+      this.groupService.joinGroup(this.selectedGroupToJoin, this.user.id).subscribe((response: any) => {
+        if (response && response.message === 'User is already a member of this group.') {
           this.currentGroup = this.selectedGroupToJoin || null;
         } else {
           // this.message = 'Joined group successfully.';
@@ -91,23 +94,24 @@ export class UserDashboardComponent implements OnInit {
     } else {
       console.error('selectedGroupToJoin is undefined or null');
     }
-  }
+}
 
-  leaveGroup() {
-    if (this.selectedGroupToLeave) {
-      this.groupService.leaveGroup(this.selectedGroupToLeave).subscribe(response => {
-        // this.message = 'Left group successfully.';
-        if (this.currentGroup === this.selectedGroupToLeave) {
-          this.currentGroup = null;
-        }
-        this.loadGroups();
-      }, error => {
-        console.error('Error leaving group:', error);
-      });
-    } else {
-      console.error('selectedGroupToLeave is undefined or null');
-    }
+leaveGroup(groupName: string) {
+  this.selectedGroupToLeave = groupName;
+
+  if (this.selectedGroupToLeave) {
+    this.groupService.leaveGroup(this.selectedGroupToLeave, this.user.id).subscribe(response => {
+      if (this.currentGroup === this.selectedGroupToLeave) {
+        this.currentGroup = null;
+      }
+      this.loadGroups();
+    }, error => {
+      console.error('Error leaving group:', error);
+    });
+  } else {
+    console.error('selectedGroupToLeave is undefined or null');
   }
+}
 
   deleteSelf() {
     this.userService.deleteUser(this.user.id).subscribe(() => {

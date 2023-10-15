@@ -1,88 +1,76 @@
-/* General Styles */
+/* Global styling to improve aesthetics */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f4;
+}
+
 .container {
-    font-family: 'Arial', sans-serif;
-    margin-bottom: 50px; /* Add spacing at the bottom */
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Header Section Styles */
-h2 {
-    color: #333;
-    font-weight: bold;
-}
-
-.btn-warning {
+h2, h3 {
     color: #333;
 }
 
-/* Group Creation Section Styles */
-.group-creation-section input {
-    margin-right: 10px;
-    padding: 5px 10px;
-    border: 1px solid #ccc;
+.btn-outline-warning {
+    border-color: #ffc107;
+    color: #ffc107;
+}
+
+.btn-outline-warning:hover {
+    background-color: #ffc107;
+    color: #fff;
+}
+
+/* Specific section styling for differentiation */
+.group-creation-section,
+.all-groups-section,
+.channel-creation-section,
+.users-section {
+    padding: 20px;
+    margin: 20px 0;
     border-radius: 5px;
+    background-color: #f9f9f9;
 }
 
-/* All Groups Display Section Styles */
-.all-groups-section h3 {
-    color: #007bff;
-    font-weight: bold;
-}
-
-.list-unstyled {
-    padding-left: 0;
-}
-
+/* Styling for the group cards */
 .card {
-    transition: box-shadow 0.3s;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.card-title .btn-link {
-    font-size: 1.5em;
-    color: #007bff;
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn-link.text-dark:hover {
     text-decoration: none;
+    color: #007bff;  /* Change to your primary color if different */
 }
 
-.card-title .btn-link:hover {
-    text-decoration: underline;
+/* Styling for the tables */
+table.table {
+    border-collapse: separate;
+    border-spacing: 0 5px;
 }
 
-.fs-lg {
-    font-size: 1.5em;
+table.table tr {
+    background-color: white;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
 }
 
-.fs-sm {
-    font-size: 0.9em;
+table.table thead tr {
+    background-color: #333;
+    color: white;
 }
 
-/* Channel Creation Section Styles */
-.channel-creation-section input {
-    margin-right: 10px;
-    padding: 5px 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+table.table th, table.table td {
+    padding: 15px;
 }
 
-/* User Management Section Styles */
-.users-section table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.users-section th, .users-section td {
-    padding: 10px;
-    text-align: left;
-    border: 1px solid #ddd;
-}
-
-.users-section th {
-    background-color: #f2f2f2;
-}
-
-.users-section tr:hover {
-    background-color: #f5f5f5;
-}
-
-.users-section button {
-    margin-right: 5px;
+.btn-sm.ml-2 {
+    margin-left: 10px;
 }

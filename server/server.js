@@ -32,29 +32,34 @@ app.use(session({
 }));
 
 // API routes
-app.use('/api', routes);
+app.use('/api', routes.router);
 
 // Socket.io setup
 io.on('connection', (socket) => {
     console.log('New user connected');
 
-    socket.on('join group', (group) => {
-        socket.join(group);
-        io.to(group).emit('user joined', `A user has joined the group ${group}`);
-    });
-
-    socket.on('leave group', (group) => {
-        socket.leave(group);
-        io.to(group).emit('user left', `A user has left the group ${group}`);
-    });
-
-    // Updated section
     socket.on('send message', (data) => {
-        io.to(data.group).emit('chat message', data);
+        const user = routes.getUserById(data.sender);
+        const username = user ? user.username : `User with ID ${data.sender}`;
+        io.to(data.group).emit('chat message', { ...data, username });
     });
 
     socket.on('disconnect', () => {
         console.log('User disconnected');
+    });
+
+    socket.on('join channel', (data) => {
+        socket.join(data.group);
+        const user = routes.getUserById(data.userId);
+        const username = user ? user.username : `User with ID ${data.userId}`;
+        io.to(data.group).emit('user joined', `${username} has joined the group ${data.group}`);
+    });
+      
+    socket.on('leave channel', (data) => {
+        socket.leave(data.group);
+        const user = routes.getUserById(data.userId);
+        const username = user ? user.username : `User with ID ${data.userId}`;
+        io.to(data.group).emit('user left', `${username} has left the group ${data.group}`);
     });
 });
 
