@@ -4,6 +4,7 @@ const router = express.Router();
 
 // Register a new user
 router.post('/auth/register', async (req, res) => {
+  console.log(req.body);
     try {
         const { username, password, email } = req.body;
         const existingUser = await User.findOne({ username });
@@ -19,12 +20,15 @@ router.post('/auth/register', async (req, res) => {
         });
         await newUser.save();
         res.json({ message: 'User registered successfully.' });
-    } catch (error) {
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+      }
+    
 });
 
 router.post('/auth/login', async (req, res) => {
+  console.log(req.body);
     const { username, password } = req.body;
   
     try {
@@ -42,11 +46,13 @@ router.post('/auth/login', async (req, res) => {
 });
 
 router.post('/auth/logout', (req, res) => {
+  console.log(req.body);
     req.session.destroy();
     res.json({ message: 'Logged out successfully.' });
 });
 
 router.get('/groups', async (req, res) => {
+  console.log(req.body);
     try {
       const groups = await Group.find({});
       res.json(groups);
@@ -57,6 +63,7 @@ router.get('/groups', async (req, res) => {
 });
 
 router.post('/groups', async (req, res) => {
+  console.log(req.body);
     const { groupName } = req.body;
   
     try {
@@ -79,6 +86,7 @@ router.post('/groups', async (req, res) => {
 });
 
 router.put('/groups/:groupName', async (req, res) => {
+  console.log(req.body);
     const groupName = decodeURIComponent(req.params.groupName);
   
     try {
@@ -100,6 +108,7 @@ router.put('/groups/:groupName', async (req, res) => {
 });
 
   router.delete('/groups/:groupName', async (req, res) => {
+    console.log(req.body);
     const groupName = req.params.groupName;
   
     try {
@@ -117,6 +126,7 @@ router.put('/groups/:groupName', async (req, res) => {
 });
 
 router.get('/users', async (req, res) => {
+  console.log(req.body);
     try {
       const users = await User.find({}, '-password');
       res.json(users);
@@ -127,6 +137,7 @@ router.get('/users', async (req, res) => {
 });
 
 router.get('/groups/:groupName/channels', async (req, res) => {
+  console.log(req.body);
     const groupName = decodeURIComponent(req.params.groupName);
   
     try {
@@ -142,6 +153,7 @@ router.get('/groups/:groupName/channels', async (req, res) => {
 });
 
 router.post('/groups/:groupName/channels', async (req, res) => {
+  console.log(req.body);
     const groupName = decodeURIComponent(req.params.groupName);
     const { channelName } = req.body;
   
@@ -165,6 +177,7 @@ router.post('/groups/:groupName/channels', async (req, res) => {
 });
 
 router.put('/users/:userId/role', async (req, res) => {
+  console.log(req.body);
     const userId = req.params.userId;
     const { role } = req.body;
   
@@ -182,6 +195,7 @@ router.put('/users/:userId/role', async (req, res) => {
 });
 
 router.get('/groups/:groupName/users', async (req, res) => {
+  console.log(req.body);
     const groupName = decodeURIComponent(req.params.groupName);
   
     try {
@@ -194,6 +208,7 @@ router.get('/groups/:groupName/users', async (req, res) => {
 });
 
 router.post('/users', async (req, res) => {
+  console.log(req.body);
     const { username, email, password, role } = req.body;
   
     if (!role || !['User', 'GroupAdmin', 'SuperAdmin'].includes(role)) {
@@ -218,6 +233,7 @@ router.post('/users', async (req, res) => {
 });
 
 router.delete('/users/:userId', async (req, res) => {
+  console.log(req.body);
     const userId = req.params.userId;
   
     const user = await User.findById(userId);
@@ -234,26 +250,35 @@ router.delete('/users/:userId', async (req, res) => {
 });
 
 router.post('/admin/create-user', async (req, res) => {
-    const { username, email, role, password } = req.body;
+  console.log(req.body);
+  const { username, email, role, password } = req.body;
   
-    const existingUser = await User.findOne({ username });
-    if (existingUser) {
-      return res.status(400).json({ message: 'Username already exists.' });
+  const existingUser = await User.findOne({ username });
+  if (existingUser) {
+    return res.status(400).json({ message: 'Username already exists.' });
+  }
+  
+  const newUser = new User({
+    username,
+    email,
+    password,
+    roles: [role || 'User'],
+    groups: []
+  });
+  
+  newUser.save((error, savedUser) => {
+    if (error) {
+        console.error('Error saving user:', error);
+        return res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
-  
-    const newUser = new User({
-      username,
-      email,
-      password,
-      roles: [role || 'User'],
-      groups: []
-    });
-    
-    await newUser.save();
+    console.log('User saved successfully:', savedUser);
     res.json({ message: `User created successfully with role ${role || 'User'}.` });
+  });
 });
 
+
 router.delete('/admin/delete-user/:userId', async (req, res) => {
+  console.log(req.body);
     const userId = req.params.userId;
   
     const user = await User.findById(userId);
@@ -266,6 +291,7 @@ router.delete('/admin/delete-user/:userId', async (req, res) => {
 });
 
 router.get('/user-requests', async (req, res) => {
+  console.log(req.body);
     try {
       const users = await User.find({}, '-password');
       res.json(users);
@@ -276,6 +302,7 @@ router.get('/user-requests', async (req, res) => {
 });
 
 router.post('/groups/:groupName/join', async (req, res) => {
+  console.log(req.body);
     const groupName = decodeURIComponent(req.params.groupName);
     const userId = req.body.userId;
   
@@ -295,6 +322,7 @@ router.post('/groups/:groupName/join', async (req, res) => {
 });
 
 router.post('/groups/:groupName/leave', async (req, res) => {
+  console.log(req.body);
     const groupName = decodeURIComponent(req.params.groupName);
     const userId = req.body.userId;
   
@@ -315,6 +343,7 @@ router.post('/groups/:groupName/leave', async (req, res) => {
 });
 
 router.put('/users/:userId/role', async (req, res) => {
+  console.log(req.body);
     const userId = req.params.userId;
     const { role } = req.body;
 
@@ -330,6 +359,7 @@ router.put('/users/:userId/role', async (req, res) => {
 });
 
 router.get('/groups/:groupName/users', async (req, res) => {
+  console.log(req.body);
     const groupName = decodeURIComponent(req.params.groupName);
 
     const usersInGroup = await User.find({ groups: groupName });

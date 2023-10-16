@@ -151,6 +151,7 @@ loadGroups() {
   }
 
   deleteUser(userId: number) {
+    console.log('userId:', userId);
     this.userService.deleteUser(userId.toString()).subscribe(() => {
       this.loadUsers();
     }, error => {

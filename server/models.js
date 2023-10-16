@@ -1,17 +1,17 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-    _id: String, 
-    username: String,
-    password: String,
-    email: String,
-    roles: [String],
-    groups: [String],
-});
+    // _id: String,
+    username: { type: String, required: true },
+    password: { type: String, required: true },
+    email: { type: String, required: true },
+    roles: { type: [String], default: [] },
+    groups: { type: [String], default: [] },
+}, { timestamps: true });  // Adding timestamps for debugging
 
 const groupSchema = new mongoose.Schema({
-    name: String,
-    channels: [String],
+    name: { type: String, required: true },
+    channels: { type: [String], default: [] },
 });
 
 const User = mongoose.model('User', userSchema);
