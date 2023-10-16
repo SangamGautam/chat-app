@@ -1,75 +1,88 @@
 .chat-container {
-    width: 80%;
-    max-width: 600px;
-    margin: 50px auto;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-  }
-  
-  .chat-header {
-    background-color: #007BFF;
-    color: white;
-    padding: 10px 15px;
-    text-align: center;
-  }
-  
-  .chat-messages {
-    height: 400px;
-    overflow-y: scroll;
-    padding: 10px;
-    background-color: #f5f5f5;
-  }
-  
-  .chat-messages .sent,
-  .chat-messages .received {
-    margin: 5px 0;
-    padding: 10px;
-    border-radius: 10px;
-    clear: both;
-  }
-  
-  .chat-messages .sent {
-    background-color: #DCF8C6;
-    float: right;
-    margin-right: 10px;
-  }
-  
-  .chat-messages .received {
-    background-color: #FFFFFF;
-    float: left;
-    margin-left: 10px;
-  }
-  
-  .chat-input {
-    padding: 10px;
-    background-color: white;
-    border-top: 1px solid #ddd;
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .chat-input textarea {
-    width: 85%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    resize: none;
-  }
-  
-  .chat-input button {
-    width: 10%;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.2s;
-  }
-  
-  .chat-input button:hover {
-    background-color: #0056b3;
-  }
-  
+  width: 80%;
+  max-width: 600px;
+  margin: 50px auto;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.chat-header {
+  background-color: #007BFF;
+  color: white;
+  padding: 10px 15px;
+  text-align: center;
+}
+
+.chat-messages {
+  height: 400px;
+  overflow-y: scroll;
+  padding: 10px;
+  background-color: #f5f5f5;
+}
+
+.chat-messages .sent,
+.chat-messages .received {
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 10px;
+  clear: both;
+}
+
+.chat-messages .sent {
+  background-color: #DCF8C6;
+  float: right;
+  margin-right: 10px;
+}
+
+.chat-messages .received {
+  background-color: #FFFFFF;
+  float: left;
+  margin-left: 10px;
+}
+
+.chat-input {
+  padding: 10px;
+  background-color: white;
+  border-top: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+}
+
+.chat-input textarea {
+  width: 85%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  resize: none;
+}
+
+.chat-input button {
+  width: 10%;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.2s;
+  margin: 0 5px;  /* Adds some spacing between buttons */
+}
+
+.chat-input button:hover {
+  background-color: #0056b3;
+}
+
+/* Styles for the image upload input and button */
+.chat-input input[type="file"] {
+  margin-right: 10px;
+}
+
+/* Style for displaying uploaded images in the chat */
+.chat-image {
+  max-width: 100%;  /* Ensures images are responsive and fit within the chat container */
+  border-radius: 8px;  /* Optional: for rounded corners */
+  display: block;  /* Ensures there's a new line after the image */
+  margin: 5px 0;  /* Adds some spacing above and below the image */
+}

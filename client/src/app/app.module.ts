@@ -12,6 +12,7 @@ import { UserDashboardComponent } from './components/user-dashboard/user-dashboa
 import { GroupAdminDashboardComponent } from './components/group-admin-dashboard/group-admin-dashboard.component';
 import { SuperAdminDashboardComponent } from './components/super-admin-dashboard/super-admin-dashboard.component';
 import { HttpClientModule } from '@angular/common/http';
+import { ProfilePictureComponent } from './components/profile-picture/profile-picture.component';
 
 
 @NgModule({
@@ -22,7 +23,8 @@ import { HttpClientModule } from '@angular/common/http';
     ChatComponent,
     UserDashboardComponent,
     GroupAdminDashboardComponent,
-    SuperAdminDashboardComponent
+    SuperAdminDashboardComponent,
+    ProfilePictureComponent
   ],
   imports: [
     BrowserModule,

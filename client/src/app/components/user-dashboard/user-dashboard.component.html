@@ -8,6 +8,11 @@
                     <h5>User Profile</h5>
                     <button class="btn btn-warning btn-sm logout-btn" (click)="logout()">Logout</button>
                 </div>
+
+                <!-- Profile Picture Component -->
+                <div class="profile-picture-container">
+                    <app-profile-picture></app-profile-picture>
+                </div>
                 <div class="card-body">
                     <p><strong>Username:</strong> {{ user.username }}</p>
                     <p><strong>Email:</strong> {{ user.email }}</p>

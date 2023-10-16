@@ -8,12 +8,12 @@ const routes = require('./routes');
 const mongoose = require('mongoose'); // Import mongoose
 
 // Connect to MongoDB
-mongoose.connect('mongodb://127.0.0.1:27017/chatApp', { 
-    useNewUrlParser: true, 
-    useUnifiedTopology: true 
+mongoose.connect('mongodb://127.0.0.1:27017/chatApp', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
 })
-.then(() => console.log('MongoDB Connected'))
-.catch(err => console.log(err));
+    .then(() => console.log('MongoDB Connected'))
+    .catch(err => console.log(err));
 
 const app = express();
 const server = http.createServer(app);
@@ -52,7 +52,14 @@ io.on('connection', (socket) => {
         const username = user ? user.username : `User with ID ${data.sender}`;
         io.to(data.group).emit('chat message', { ...data, username });
     });
-    
+
+    socket.on('send image', (data) => {
+        io.to(data.group).emit('chat image', {
+            sender: data.sender,
+            imageUrl: data.imageUrl,
+            // ... any other data you want to send ...
+        });
+    });
 
     socket.on('disconnect', () => {
         console.log('User disconnected');
@@ -64,7 +71,7 @@ io.on('connection', (socket) => {
         const username = user ? user.username : `User with ID ${data.userId}`;
         io.to(data.group).emit('user joined', `${username} has joined the group ${data.group}`);
     });
-      
+
     socket.on('leave channel', (data) => {
         socket.leave(data.group);
         const user = routes.getUserById(data.userId);
@@ -77,6 +84,9 @@ io.on('connection', (socket) => {
 app.get('/', (req, res) => {
     res.send('Server with Socket.io!');
 });
+
+// Serve static files
+app.use('/uploads', express.static('uploads'));
 
 // Error Handling
 app.use((err, req, res, next) => {

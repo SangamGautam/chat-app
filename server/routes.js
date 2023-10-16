@@ -1,6 +1,52 @@
 const express = require('express');
+const multer  = require('multer');
 const { User, Group } = require('./models'); // Import your MongoDB models
 const router = express.Router();
+
+// Set up multer to store uploaded images in the 'uploads' directory
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/')
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname)
+  }
+})
+
+const upload = multer({ storage: storage })
+
+// New route for uploading profile pictures
+router.post('/uploadProfilePicture', upload.single('profilePicture'), async (req, res) => {
+  try {
+    const userId = req.body.userId;
+    const imagePath = req.file.path;
+
+    // Update the user's data with the new image path
+    await User.findByIdAndUpdate(userId, { profilePicture: imagePath });
+
+    // Build the imageUrl based on your server's configuration
+    const imageUrl = `http://localhost:3000/uploads/${req.file.filename}`;
+
+    res.json({ message: 'Profile picture updated successfully.', imageUrl });
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+
+
+// route to upload image in chat
+router.post('/upload', upload.single('image'), async (req, res) => {
+  try {
+    // Use the file information to save the image path to your database,
+    // or handle the file as needed
+    const imagePath = req.file.path;
+    res.json({ message: 'Image uploaded successfully.', imagePath });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
 
 // Register a new user
 router.post('/auth/register', async (req, res) => {

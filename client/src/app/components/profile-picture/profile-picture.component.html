@@ -1,0 +1,24 @@
+<div class="profile-picture-container text-center">
+    <div class="image-container mb-3">
+        <img *ngIf="profilePictureUrl; else placeholder" 
+             [src]="profilePictureUrl" 
+             alt="Profile Picture" 
+             class="profile-picture rounded-circle" />
+        <ng-template #placeholder>
+            <div class="placeholder-image rounded-circle d-flex align-items-center justify-content-center">
+                <i class="fas fa-user"></i>
+            </div>
+        </ng-template>
+    </div>
+    <div class="icon-actions">
+        <label class="btn btn-primary btn-sm mb-2">
+            <input type="file" (change)="onFileSelected($event)" accept="image/*" hidden />
+            <i class="fas fa-folder-open"></i> Choose
+        </label>
+        <button *ngIf="selectedFile" 
+                class="btn btn-success btn-sm" 
+                (click)="uploadImage()">
+            <i class="fas fa-upload"></i> Upload
+        </button>
+    </div>
+</div>

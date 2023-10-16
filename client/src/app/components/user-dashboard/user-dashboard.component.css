@@ -150,3 +150,21 @@
     color: white;
 }
 
+.profile-picture-container {
+    width: 100px; /* Adjust as needed */
+    height: 100px; /* Adjust as needed */
+    border-radius: 50%; /* Creates the circular frame */
+    overflow: hidden; /* Hides the parts of the image outside the circle */
+    margin: auto; /* Centers the image container */
+    margin-bottom: 10px; /* Adds some space below the image */
+}
+
+/* Styles for the image itself */
+.profile-picture-container img {
+    width: 100%; /* Ensures the image covers the entire container */
+    height: auto; /* Maintains the image's aspect ratio */
+    object-fit: cover; /* Ensures the image covers the entire container without stretching */
+    display: block; /* Removes any default spacing around the image */
+}
+
+

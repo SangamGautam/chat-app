@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { AuthenticationService } from '../../services/authentication.service';
+import { ImageUploadService } from '../../services/image-upload.service';  // Import your image upload service
 
 @Component({
   selector: 'app-chat',
@@ -13,8 +14,12 @@ export class ChatComponent implements OnInit, OnChanges {
   public messages: { sender: string, content: string, type: 'sent' | 'received' }[] = [];
   public joinedChannels: string[] = [];
   public currentMessage: string = '';
+  public selectedFile: File | null = null;  // New property to hold the selected file
 
-  constructor(private authService: AuthenticationService) {}
+  constructor(
+    private authService: AuthenticationService,
+    private imageUploadService: ImageUploadService  // Inject your image upload service
+    ) {}
 
   ngOnInit(): void {
     this.initializeSocket();
@@ -43,6 +48,20 @@ export class ChatComponent implements OnInit, OnChanges {
       this.messages.push({ sender: 'System', content: message, type: 'received' });
     });
 
+    this.socket.on('chat image', (msg: { sender: string, imageUrl: { imagePath: string }, username: string }) => {
+      const type = msg.sender === this.authService.currentUserValue._id ? 'sent' : 'received';
+      const senderName = type === 'sent' ? 'You' : msg.username;
+    
+      // Replace backslashes with forward slashes in the imagePath
+      const imagePath = msg.imageUrl.imagePath.replace(/\\/g, '/');
+      
+      // Prepend the base URL to form a complete URL
+      const completeImageUrl = `http://localhost:3000/${imagePath}`;
+    
+      this.messages.push({ sender: senderName, content: completeImageUrl, type });
+    });
+    
+
     if (this.currentGroup) {
       this.joinChannel(this.currentGroup);
     }
@@ -55,6 +74,29 @@ export class ChatComponent implements OnInit, OnChanges {
     this.socket.emit('send message', { content: this.currentMessage, group: this.currentGroup, sender: userId });
     this.currentMessage = '';
   }
+
+  uploadImage(): void {
+    const formData = new FormData();
+    formData.append('image', this.selectedFile!, this.selectedFile!.name);
+    this.imageUploadService.uploadImage(formData).subscribe(imageUrl => {
+      const userId = this.authService.currentUserValue._id;  
+      this.socket.emit('send image', { imageUrl, group: this.currentGroup, sender: userId });
+      this.selectedFile = null;
+    });
+  }
+
+  isImageUrl(url: string): boolean {
+    return /\.(jpg|jpeg|png|gif)$/i.test(url);
+  }
+
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      this.selectedFile = input.files[0];
+    }
+  }
+
 
   joinChannel(channel: string): void {
     if (this.socket) {

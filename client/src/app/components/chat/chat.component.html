@@ -1,18 +1,25 @@
 <div *ngIf="currentGroup" class="chat-container">
-    <div class="chat-header">
-      <h4>{{ currentGroup }}</h4>
-    </div>
-  
-    <div class="chat-messages">
-      <div *ngFor="let msg of messages" [ngClass]="{'sent': msg.type === 'sent', 'received': msg.type === 'received'}">
-        <strong *ngIf="msg.type === 'received'">{{ msg.sender }}</strong>
-        <span *ngIf="msg.type === 'sent'">You</span>: {{ msg.content }}
-      </div>
-    </div>
-  
-    <div class="chat-input">
-      <textarea [(ngModel)]="currentMessage" placeholder="Type your message here..."></textarea>
-      <button (click)="sendMessage()">Send</button>
+  <div class="chat-header">
+    <h4>{{ currentGroup }}</h4>
+  </div>
+
+  <div class="chat-messages">
+    <div *ngFor="let msg of messages" [ngClass]="{'sent': msg.type === 'sent', 'received': msg.type === 'received'}">
+      <strong *ngIf="msg.type === 'received'">{{ msg.sender }}</strong>
+      <span *ngIf="msg.type === 'sent'">You</span>: 
+      <!-- Check if the message content is an image URL -->
+      <ng-container *ngIf="isImageUrl(msg.content); else textContent">
+        <img [src]="msg.content" alt="Image" class="chat-image"/>
+      </ng-container>
+      <ng-template #textContent>{{ msg.content }}</ng-template>
     </div>
   </div>
-  
+
+  <div class="chat-input">
+    <textarea [(ngModel)]="currentMessage" placeholder="Type your message here..."></textarea>
+    <!-- Image Upload Section -->
+    <input type="file" (change)="onFileSelected($event)" accept="image/*" />
+    <button *ngIf="selectedFile" (click)="uploadImage()">Upload Image</button>
+    <button (click)="sendMessage()">Send</button>
+  </div>
+</div>
