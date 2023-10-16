@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ProfilePictureComponent } from './profile-picture.component';
 
 describe('ProfilePictureComponent', () => {
@@ -8,6 +8,7 @@ describe('ProfilePictureComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
       declarations: [ProfilePictureComponent]
     });
     fixture = TestBed.createComponent(ProfilePictureComponent);

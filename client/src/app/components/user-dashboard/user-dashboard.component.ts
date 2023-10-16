@@ -14,7 +14,9 @@ import { HttpClient } from '@angular/common/http';
 export class UserDashboardComponent implements OnInit {
   @ViewChild(ChatComponent) private chatComponent!: ChatComponent;
 
-  user: any = {};
+  // Initialize user object here
+  user: any = { username: '', email: '', id: '', roles: [] };
+
   users: any[] = [];
   groups: any[] = [];
   currentGroup: string | null = null;

@@ -14,10 +14,10 @@
                     <app-profile-picture></app-profile-picture>
                 </div>
                 <div class="card-body">
-                    <p><strong>Username:</strong> {{ user.username }}</p>
-                    <p><strong>Email:</strong> {{ user.email }}</p>
-                    <p><strong>ID:</strong> {{ user.id }}</p>
-                    <p><strong>Roles:</strong> {{ user.roles.join(', ') }}</p>
+                    <p><strong>Username:</strong> {{ user?.username }}</p>
+                    <p><strong>Email:</strong> {{ user?.email }}</p>
+                    <p><strong>ID:</strong> {{ user?._id }}</p>
+                    <p><strong>Roles:</strong> {{ user?.roles.join(', ') }}</p>
                     <button class="btn btn-danger delete-btn" (click)="deleteSelf()">Delete My Account</button>
                 </div>
             </div>
@@ -28,13 +28,13 @@
                     <h5>Your Groups</h5>
                     <div class="group-action">
                         <select [(ngModel)]="selectedGroupToJoin" class="group-dropdown">
-                            <option *ngFor="let group of groups" [value]="group.name">{{ group.name }}</option>
+                            <option *ngFor="let group of groups" [value]="group.name">{{ group?.name }}</option>
                         </select>
                         <button class="btn btn-light btn-sm join-btn" (click)="joinGroup()">Join</button>
                     </div>
                 </div>
                 <ul class="group-list">
-                    <li *ngFor="let group of user.groups">
+                    <li *ngFor="let group of user?.groups">
                         <span class="group-name" (click)="openChat(group)">{{ group }}</span>
                         <button class="btn btn-sm btn-danger leave-btn" (click)="leaveGroup(group)">Leave</button>
                     </li>
@@ -49,7 +49,7 @@
                     <h5>Chatting in {{ currentGroup }}</h5>
                 </div>
                 <!-- Embed the chat component for the selected group -->
-                <app-chat [currentGroup]="currentGroup"></app-chat>
+                <app-chat *ngIf="currentGroup" [currentGroup]="currentGroup"></app-chat>
             </div>
         </div>        
     </div>

@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { GroupAdminDashboardComponent } from './group-admin-dashboard.component';
+import { ProfilePictureComponent } from '../profile-picture/profile-picture.component';  // Adjust the import path accordingly
+import { FormsModule } from '@angular/forms';
 
 describe('GroupAdminDashboardComponent', () => {
   let component: GroupAdminDashboardComponent;
@@ -8,7 +10,11 @@ describe('GroupAdminDashboardComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [GroupAdminDashboardComponent]
+      imports: [HttpClientTestingModule, FormsModule],
+      declarations: [
+        GroupAdminDashboardComponent,
+        ProfilePictureComponent  // Include ProfilePictureComponent in declarations
+      ]
     });
     fixture = TestBed.createComponent(GroupAdminDashboardComponent);
     component = fixture.componentInstance;
