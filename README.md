@@ -1,57 +1,168 @@
 # Chat System Documentation
 
-The MEAN stack (MongoDB, Express, Angular, Node) will be used to create a real-time text/video chat system, together with `sockets.io` and `Peer.js`. The system offers several authorization levels and enables user communication across various groups and channels. In the initial phase, only a few fundamental functionalities were implemented, and the environment was set up using Express, Angular, Node, and JSON to store data. It is more like configuring the server site and front end.
+Using the **MEAN** stack (MongoDB, Express, Angular, Node), we are crafting a real-time text chat system. With `sockets.io` and `Peer.js` supplementing the core functionality, our system addresses multiple authorization levels and facilitates communication across varied groups and channels.
 
-## Table of Contents
+## Table of Contents:
 - [Git Repository Organization](#git-repository-organization)
 - [Data Structures](#data-structures)
 - [Angular Architecture](#angular-architecture)
 - [Node Server Architecture](#node-server-architecture)
 - [Server Routes](#server-routes)
 - [Client-Server Interaction](#client-server-interaction)
+- [Testing](#testing)
 
 ## Git Repository Organization
-- **Client and Server**: The two main directories that make up the repository.
-- **Branching**: Development was carried out in the development branch, which was then removed after it was merged with the main branch.
-- **Commit Frequency**: To promote clarity and traceability, commits were made frequently with concise and illustrative commit statements.
-- **Directory Organization**: The Angular application is located in the client directory, whereas the server directory holds all backend-related code.
+
+### Directories
+- **Client**: Houses the Angular application.
+- **Server**: Contains Express server, MongoDB models, and other backend utilities.
+
+### Branching Strategy
+- **Development Branch**: All feature development and bug fixes are carried out here.
+- **Main Branch**: Stable releases, after rigorous testing, are merged here from the development branch.
+
+### Commit Strategy
+Each commit is atomic, addressing a single feature or bug, ensuring easy traceability and rollback.
 
 ## Data Structures
-### Client-Side
-- **Users**: Represented as objects that have the following properties: id, username, email, roles, and groups.
-- **Groups**: A collection of group names.
-- **Channels**: A list of channel names organised by group.
 
-### Server-Side
-- **Users**: Saved in a JSON file with the following fields: id, username, email, password, and roles.
-- **Groups**: Each group can be established, changed, and deleted independently.
-- **Channels**: Each channel in the group can be formed.
+### Client-Side
+- **Users**: User objects encompass id, username, email, roles, groups, and a link to their profile image.
+- **Groups**: An array structure with group names and associated metadata.
+- **Channels**: Hierarchical data, wherein each group has an array of channel names and their details.
+
+### Server-Side (MongoDB)
+- **Users Collection**: Data like id, username, email, encrypted password, roles, and profile image URL.
+- **Groups Collection**: Each document represents a group, with fields like group name, description, and associated channels.
+- **Channels Collection**: Information about each channel, its members, chat history (including images and text), and associated group.
 
 ## Angular Architecture
-- **Components**: Dashboard components for user login, registration, chat, and admin functionality.
-- **Services**: Include API call handling, user and group services, and user authentication.
-- **Models**: Models that have been created for the user but have not yet been implemented in this first phase.
-- **Routes**: Different views have been routed based on user roles and authentication status, and Guard has also been created.
+
+### Components
+#### Dashboard Component
+- **Purpose**: Acts as the main interface once the user logs in. It provides a holistic view of the user's activities and available options.
+- **Features**:
+  - Displays a list of groups the user is a part of.
+  - Shows available channels within those groups.
+  - Provides options to switch between different channels or groups.
+  - Allows direct navigation to chat or admin functionalities based on user roles.
+  
+#### Login & Registration Components
+- **Purpose**: These are the gateways for user authentication.
+- **Login Features**:
+  - Fields for username and password input.
+  - Option to remember user credentials for future sessions.
+  - Error handling for incorrect credentials.
+- **Registration Features**:
+  - Input fields for username, email, password, and password confirmation.
+  - Validation for email format and password strength.
+  - Feedback on successful registration or errors.
+
+#### Chat Component
+- **Purpose**: Central component for real-time messaging.
+- **Features**:
+  - Displays chat history, including text messages and images.
+  - Text input field for composing messages.
+  - Option to upload and send images within the chat.
+  - Real-time updates as users send messages.
+  - Notifications for new messages if the user is not actively on the chat window.
+  
+#### Admin Component
+- **Purpose**: Dedicated space for administrative tasks.
+- **Features**:
+  - Group management: Add, remove, or modify user roles.
+  - Group management: Create new groups or modify existing ones.
+  - Channel management within groups: Add, remove, or modify channels.
+
+### Services
+#### API Service
+- **Purpose**: Centralizes all HTTP requests to the server.
+- **Features**:
+  - Functions for GET, POST, PUT, DELETE requests.
+  - Error handling for failed requests.
+  - Parsing and formatting data for transmission.
+
+#### Authentication Service
+- **Purpose**: Oversee all authentication-related operations.
+- **Features**:
+  - Login: Verifies user credentials and initiates sessions.
+  - Logout: Ends the user session and clears any stored credentials.
+  - Session Persistence: Maintains user session across page reloads or revisits.
+
+#### Group & Channel Service
+- **Purpose**: Manages all operations related to groups and channels.
+- **Features**:
+  - Fetches all groups and channels for a user.
+  - Adds or removes users from groups or channels.
+  - Creates or deletes groups or channels.
+
+### Routes & Guards
+#### Routes
+- **Purpose**: Define the URL structure and associate each URL with a specific component.
+- **Features**:
+  - Routes like `/login`, `/register`, `/dashboard`, `/chat`, and `/admin` load the respective components.
+  - Nested routes for navigating between different channels within a group.
+  
+#### Guards
+- **Purpose**: Ensure that users access routes based on their authentication status and roles.
+- **Features**:
+  - Authentication Guard: Checks if a user is logged in. If not, redirect to the login page.
+  - Role-based Guard: Checks the user's role to determine if they have permission to access specific routes, such as the admin route.
 
 ## Node Server Architecture
-- **Modules**: Express was used to build up the server, JSON was used to store data and read and write from it, and local and session storage were implemented to remember user sign-in to the server.
-- **Functions**: These are the functions that handle CRUD activities for users, groups, and channels.
-- **Files**: Routes, server, users, groups, controllers, and some other fundamental files are organized.
-- **Global Variables**: Arrays for storing users, groups, and channels.
+
+### Modules
+- **Express**: Provides the framework for server setup and route handling.
+- **MongoDB**: The NoSQL database for persistent storage.
+- **Socket.io**: Enables real-time bi-directional communication.
+- **Peer.js**: Facilitates video chat capabilities.
+
+### Middleware
+- **Authentication Middleware**: Verifies user tokens and roles.
+- **Error Handling**: Catches and processes server errors.
+- **Database Models**: Define the structure of collections in MongoDB.
+- **Global Variables**: These temporarily hold user sessions, active socket connections, and active channels for efficient management.
 
 ## Server Routes
-- `/users`: User CRUD operations.
-- `/groups`: Group CRUD operations.
-- `/channels`: Channel CRUD operations.
-- `/authenticate`: User authentication.
-- `/register`: New user registration.
+
+**/users**: CRUD operations for users. Can fetch, update, delete, or add a user.
+**/groups**: Operations related to groups. List all, create a new one, modify, or delete.
+**/channels**: CRUD for channels, fetch chat history.
+**/authenticate**: Verifies user credentials and returns tokens.
+**/register**: Accepts user details and registers a new user.
+**/upload**: Endpoint to handle image uploads, returning the stored image URL.
+
+### REST API Routes
+
+#### User Authentication and Management
+- **Route**: `/api/users/login`
+  - **Method**: POST
+  - **Parameters**: `{ username: string, password: string }`
+  - **Return Value**: `{ success: boolean, token: string, user: { id, username, email, roles } }`
+  - **Purpose**: Authenticate users based on their username and password.
+  
+- **Route**: `/api/users/register`
+  - **Method**: POST
+  - **Parameters**: `{ username: string, email: string, password: string }`
+  - **Return Value**: `{ success: boolean, message: string }`
+  - **Purpose**: Register a new user into the system.
+
+- **Route**: `/api/users/profile`
+  - **Method**: GET
+  - **Parameters**: User token in headers
+  - **Return Value**: `{ user: { id, username, email, roles } }`
+  - **Purpose**: Fetch the profile details of the authenticated user.
+
+#### Group Management
+... [and so on for the other routes]
 
 ## Client-Server Interaction
-- **User Creation**: The client transmits user information to the server, which stores it in the data directory in JSON format.
-- **User Login**: The client sends a username and password, which the server checks and sends back after reading the JSON file.
-- **Groups/Channel**: Super admin and group admin have the ability to establish groups and assign users to them.
-- **Admin Functions**: Admin functions are handled by HTTP Client routes to authenticate data from the JSON file, and for the time being, some basic user interface functionality is used.
 
----
+**Authentication**: Once the user submits credentials, the client sends a POST request to `/authenticate`. The server checks these against the MongoDB and responds with success or failure.
+**Chatting**: When a user enters a channel, a socket connection is established. Messages sent are broadcast via `socket.io` to all members in real-time.
+**Profile & Chat Image Upload**: Utilizes the `/upload` endpoint. Once the image is uploaded to the server, a URL is returned, which is then saved in MongoDB and displayed on the client.
 
-Data is converted to JSON and saved in a text file on a regular basis, especially after major changes. When the server boots up, data from this JSON file is loaded. Further development of applications will be using MongoDB, `socket.io` and `peer.js` for real-time chatting.
+## Testing
+
+**Angular**: Automated testing is done using Jasmine and Karma. Coverage reports are generated with `ng test --code-coverage`.
+**Node Server**: Backend testing is conducted using Mocha and Chai. Socket.io functionality is tested using the `socket-io-client`.
