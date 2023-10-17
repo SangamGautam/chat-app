@@ -65,19 +65,19 @@ io.on('connection', (socket) => {
         console.log('User disconnected');
     });
 
-    socket.on('join channel', (data) => {
+    socket.on('join channel', async (data) => {
         socket.join(data.group);
-        const user = routes.getUserById(data.userId);
+        const user = await routes.getUserById(data.userId);  // <- Added await here
         const username = user ? user.username : `User with ID ${data.userId}`;
         io.to(data.group).emit('user joined', `${username} has joined the group ${data.group}`);
     });
 
-    socket.on('leave channel', (data) => {
+    socket.on('leave channel', async (data) => {
         socket.leave(data.group);
-        const user = routes.getUserById(data.userId);
+        const user = await routes.getUserById(data.userId);  // <- Added await here
         const username = user ? user.username : `User with ID ${data.userId}`;
         io.to(data.group).emit('user left', `${username} has left the group ${data.group}`);
-    });
+    });    
 });
 
 // Root route handler
@@ -98,3 +98,6 @@ const PORT = 3000;
 server.listen(PORT, () => {
     console.log(`Server is running with Socket.io on port ${PORT}`);
 });
+
+module.exports = server;
+
